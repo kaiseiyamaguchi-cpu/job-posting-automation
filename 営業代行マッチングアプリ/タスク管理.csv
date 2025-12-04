@@ -1,0 +1,88 @@
+Phase,タスクID,タスク名,担当者,所要時間,依存タスク,ステータス,説明
+Phase 0,0.1,Next.jsプロジェクト作成,全員,30分,-,未着手,create-next-app実行
+Phase 0,0.2,Supabaseプロジェクト作成,全員,15分,-,未着手,Supabase Cloudでプロジェクト作成
+Phase 0,0.3,環境変数設定,全員,10分,0.2,未着手,.env.localファイル作成・設定
+Phase 0,0.4,依存パッケージインストール,全員,15分,0.1,未着手,npm install実行
+Phase 0,0.5,Gitリポジトリ初期化,全員,10分,0.1,未着手,git init・初回コミット
+Phase 0,0.6,プロジェクト構造作成,全員,10分,0.1,未着手,src/配下のディレクトリ作成
+Phase 1-A,1A.1,Supabaseクライアント設定,担当者A,30分,0.3,✅完了,client.ts/server.ts作成
+Phase 1-A,1A.2,データベーススキーマ作成,担当者A,1時間,0.2,✅完了,profiles/companies/sales_agencies
+Phase 1-A,1A.3,マッチング関連テーブル作成,担当者A,45分,1A.2,✅完了,matching_requests
+Phase 1-A,1A.4,メッセージ関連テーブル作成,担当者A,45分,1A.2,✅完了,message_threads/messages
+Phase 1-A,1A.5,トリガー・関数作成,担当者A,45分,1A.4,✅完了,未読カウント更新など
+Phase 1-A,1A.6,RLS設定,担当者A,1時間,1A.4,✅完了,全テーブルのRow Level Security
+Phase 1-A,1A.7,インデックス作成,担当者A,30分,1A.4,✅完了,パフォーマンス最適化
+Phase 1-A,1A.8,初期データ投入,担当者A,15分,1A.6,✅完了,管理者ユーザー・マスターデータ（seed-data.sql作成）
+Phase 1-B,1B.1,TypeScript型定義作成,担当者B,1時間,0.6,✅完了,database.ts/api.ts/index.ts
+Phase 1-B,1B.2,ユーティリティ関数作成,担当者B,30分,0.6,✅完了,utils.ts/constants.ts
+Phase 1-B,1B.3,共通レイアウトコンポーネント,担当者B,1.5時間,0.6,✅完了,Header/Sidebar/DashboardLayout
+Phase 1-B,1B.4,shadcn/ui導入,担当者B,45分,0.4,✅完了,button/input/select等
+Phase 1-B,1B.5,グローバルCSS設定,担当者B,30分,1B.4,✅完了,Tailwind設定・カラーパレット
+Phase 1-C,1C.1,認証API実装,担当者C,1.5時間,1A.1,✅完了,register/login/logout/session
+Phase 1-C,1C.2,認証フック作成,担当者C,45分,1C.1,✅完了,useAuth/useUser
+Phase 1-C,1C.3,ログイン画面,担当者C,45分,1B.3,✅完了,login/page.tsx
+Phase 1-C,1C.4,新規登録画面,担当者C,1時間,1B.3,✅完了,register/page.tsx
+Phase 1-C,1C.5,認証ガード実装,担当者C,30分,1C.2,✅完了,middleware.ts
+Phase 1-C,1C.6,プロフィール作成フロー,担当者C,45分,1C.4,✅完了,初回登録時のプロフィール入力
+Phase 2-A,2A.1,営業代行検索API実装,担当者A,1時間,1A.6,✅完了,lib/actions/agency.ts作成（検索・フィルター実装済み）
+Phase 2-A,2A.2,営業代行詳細API実装,担当者A,30分,1A.6,✅完了,getAgencyById実装済み
+Phase 2-A,2A.3,営業代行一覧画面,担当者C,1時間,1B.3,✅完了,agencies/page.tsx
+Phase 2-A,2A.4,営業代行詳細画面,担当者C,45分,2A.3,✅完了,agencies/[id]/page.tsx
+Phase 2-A,2A.5,検索機能実装,担当者C,45分,2A.3,✅完了,SearchBarコンポーネント統合
+Phase 2-B,2B.1,マッチング申請API実装,担当者B,1.5時間,1A.6,✅完了,api/matching-requests作成
+Phase 2-B,2B.2,申請作成モーダル,担当者B,1時間,1B.4,✅完了,RequestModalコンポーネント
+Phase 2-B,2B.3,申請一覧画面（企業側）,担当者B,1時間,2B.1,✅完了,matching-requests/page.tsx
+Phase 2-B,2B.4,申請一覧画面（営業代行側）,担当者B,30分,2B.3,✅完了,同じページでuser_type切り替え
+Phase 2-B,2B.5,承認/却下機能実装,担当者B,45分,2B.4,✅完了,ApprovalButtonsコンポーネント
+Phase 2-B,2B.6,スレッド自動作成確認,担当者A,15分,2B.5,✅完了,createMessageThreadOnApproval実装済み
+Phase 2-C,2C.1,メッセージ関連API実装,担当者A,1.5時間,1A.6,✅完了,lib/actions/message.ts作成（スレッド取得・メッセージ送信・既読管理実装済み）
+Phase 2-C,2C.2,Realtime購読設定,担当者C,1時間,2C.1,未着手,useRealtimeMessagesフック（担当者Cへ）
+Phase 2-C,2C.3,スレッド一覧コンポーネント,担当者B/C,45分,1B.4,未着手,ThreadListコンポーネント（担当者B/Cへ）
+Phase 2-C,2C.4,チャット画面コンポーネント,担当者B/C,1.5時間,1B.4,未着手,ChatWindow/MessageBubble/Input（担当者B/Cへ）
+Phase 2-C,2C.5,メッセージページ実装,担当者C,45分,2C.3,未着手,messages/page.tsx（担当者Cへ）
+Phase 2-C,2C.6,未読管理機能,担当者A,30分,2C.5,✅完了,markMessagesAsRead・getUnreadCount実装済み
+Phase 2-C,2C.7,リアルタイム更新テスト,担当者C,30分,2C.6,未着手,2ブラウザで動作確認（担当者Cへ）
+Phase 2-D,2D.1,ダッシュボードAPI実装,担当者A,1時間,1A.6,✅完了,lib/actions/dashboard.ts作成（企業・営業代行・管理者統計実装済み）
+Phase 2-D,2D.2,統計カードコンポーネント,担当者B,30分,1B.4,未着手,StatsCardコンポーネント（担当者Bへ）
+Phase 2-D,2D.3,アクティビティコンポーネント,担当者B,30分,1B.4,未着手,RecentActivityコンポーネント（担当者Bへ）
+Phase 2-D,2D.4,クイックアクション,担当者B,30分,1B.4,未着手,QuickActionsコンポーネント（担当者Bへ）
+Phase 2-D,2D.5,ダッシュボードページ実装,担当者A,30分,2D.2,✅完了,dashboard/page.tsx（Server Component実装完了）
+Phase 2-E,2E.1,プロフィールAPI実装,担当者A,1時間,1A.6,✅完了,lib/actions/profile.ts作成（企業・営業代行CRUD実装済み）
+Phase 2-E,2E.2,企業プロフィールコンポーネント,担当者B,1時間,1B.4,未着手,CompanyProfileコンポーネント（担当者Bへ）
+Phase 2-E,2E.3,営業代行プロフィール,担当者B,1時間,1B.4,未着手,AgencyProfileコンポーネント（担当者Bへ）
+Phase 2-E,2E.4,プロフィールページ実装,担当者C,30分,2E.2,未着手,profile/page.tsx（担当者Cへ）
+Phase 2-E,2E.5,フォームバリデーション,担当者A,30分,2E.4,✅完了,lib/validations/schemas.ts作成（Zodスキーマ実装済み）
+Phase 3,3.1,管理者ダッシュボードAPI,担当者A,45分,1A.6,✅完了,lib/actions/admin/stats.ts作成（統計・成長データ・成功率実装済み）
+Phase 3,3.2,ユーザー管理API,担当者A,1時間,1A.6,✅完了,lib/actions/admin/users.ts作成（全ユーザー取得・ロール変更実装済み）
+Phase 3,3.3,マッチング申請管理API,担当者A,30分,1A.6,✅完了,lib/actions/admin/matching.ts作成（全申請取得・フィルター実装済み）
+Phase 3,3.4,スレッド管理API,担当者A,30分,1A.6,✅完了,lib/actions/admin/threads.ts作成（全スレッド取得・統計実装済み）
+Phase 3,3.5,管理者ダッシュボード画面,担当者B/C,45分,3.1,未着手,admin/dashboard/page.tsx（担当者B/Cへ）
+Phase 3,3.6,ユーザー管理画面,担当者B/C,1時間,3.2,未着手,admin/users/page.tsx（担当者B/Cへ）
+Phase 3,3.7,マッチング申請管理画面,担当者B/C,30分,3.3,未着手,admin/matching-requests/page.tsx（担当者B/Cへ）
+Phase 3,3.8,スレッド監視画面,担当者B/C,30分,3.4,未着手,admin/threads/page.tsx（担当者B/Cへ）
+Phase 3,3.9,管理者専用レイアウト,担当者B,30分,1B.3,未着手,admin/layout.tsx（担当者Bへ）
+Phase 4,4.1,エラーハンドリング強化,全員,45分,Phase 3完了,未着手,グローバルエラーハンドラー
+Phase 4,4.2,ローディング状態実装,全員,30分,Phase 3完了,未着手,スケルトン・スピナー
+Phase 4,4.3,レスポンシブ対応確認,全員,45分,Phase 3完了,未着手,モバイル・タブレット確認
+Phase 4,4.4,アクセシビリティ対応,全員,30分,Phase 3完了,未着手,ARIA属性・キーボード操作
+Phase 4,4.5,パフォーマンス最適化,全員,30分,Phase 3完了,未着手,画像・コード分割・キャッシュ
+Phase 4,4.6,テストデータ作成,担当者A,30分,Phase 3完了,✅完了,scripts/seed-data.sql作成（ダミーユーザー・申請・メッセージ）
+Phase 4,4.7,動作確認,全員,1時間,4.6,未着手,全フロー確認
+Phase 4,4.8,Vercelデプロイ,全員,30分,4.7,未着手,本番環境デプロイ
+Phase 4,4.9,ドキュメント作成,全員,30分,4.8,未着手,README.md
+Phase 4,4.10,最終確認,全員,30分,4.9,未着手,全機能動作確認・バグ修正
+追加タスク,AT.1,Zodバリデーションスキーマ作成,担当者A,45分,-,✅完了,lib/validations/schemas.ts（全フォーム対応）
+追加タスク,AT.2,フォーマット関数作成,担当者A,1時間,-,✅完了,lib/utils/format.ts（日付・通貨・テキスト）
+追加タスク,AT.3,定数定義作成,担当者A,30分,-,✅完了,lib/constants/index.ts（業種・エリア・ステータス等）
+追加タスク,AT.4,Supabaseセットアップガイド,担当者A,1時間,-,✅完了,SUPABASE_SETUP.md作成
+追加タスク,AT.5,API使用例ドキュメント,担当者A,1.5時間,-,✅完了,docs/API_USAGE_EXAMPLES.md作成
+追加タスク,AT.6,環境変数設定ガイド,担当者A,45分,-,✅完了,docs/ENV_SETUP.md作成
+追加タスク,AT.7,エラーハンドリングユーティリティ,担当者A,30分,-,✅完了,lib/utils/error.ts作成
+
+
+追加タスク,AT.3,定数定義作成,担当者A,30分,-,✅完了,lib/constants/index.ts（業種・エリア・ステータス等）
+追加タスク,AT.4,Supabaseセットアップガイド,担当者A,1時間,-,✅完了,SUPABASE_SETUP.md作成
+追加タスク,AT.5,API使用例ドキュメント,担当者A,1.5時間,-,✅完了,docs/API_USAGE_EXAMPLES.md作成
+追加タスク,AT.6,環境変数設定ガイド,担当者A,45分,-,✅完了,docs/ENV_SETUP.md作成
+追加タスク,AT.7,エラーハンドリングユーティリティ,担当者A,30分,-,✅完了,lib/utils/error.ts作成
+

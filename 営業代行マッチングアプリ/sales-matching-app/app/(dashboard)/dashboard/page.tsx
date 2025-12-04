@@ -1,19 +1,78 @@
 import { requireAuth } from '@/lib/auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createClient } from '@/lib/supabase/server'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
   const user = await requireAuth()
+  const supabase = await createClient()
 
-  // TODO: 担当者AのActions（A1.5）完成後に統計データ取得
-  // const stats = await getCompanyDashboardStats(user.id) or getAgencyDashboardStats(user.id)
+  // 統計データを取得
+  let stats = {
+    pending_requests: 0,
+    approved_requests: 0,
+    unread_messages: 0,
+  }
+
+  if (user.role === 'company') {
+    // 企業向け統計
+    const { count: pending } = await supabase
+      .from('matching_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', user.id)
+      .eq('status', 'pending')
+    
+    const { count: approved } = await supabase
+      .from('matching_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', user.id)
+      .eq('status', 'approved')
+    
+    const { count: unread } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_read', false)
+      .neq('sender_id', user.id)
+    
+    stats = {
+      pending_requests: pending || 0,
+      approved_requests: approved || 0,
+      unread_messages: unread || 0,
+    }
+  } else if (user.role === 'agency') {
+    // 営業代行向け統計
+    const { count: newRequests } = await supabase
+      .from('matching_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('agency_id', user.id)
+      .eq('status', 'pending')
+    
+    const { count: activeCompanies } = await supabase
+      .from('matching_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('agency_id', user.id)
+      .eq('status', 'approved')
+    
+    const { count: unread } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_read', false)
+      .neq('sender_id', user.id)
+    
+    stats = {
+      pending_requests: newRequests || 0,
+      approved_requests: activeCompanies || 0,
+      unread_messages: unread || 0,
+    }
+  }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">ダッシュボード</h1>
-        <p className="text-gray-600 mt-2">
+    <div className="space-y-6">
+      {/* ヘッダー */}
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">ダッシュボード</h1>
+        <p className="text-slate-400">
           {user.role === 'company' 
             ? '営業代行とのマッチング状況を確認できます' 
             : user.role === 'agency'
@@ -23,80 +82,68 @@ export default async function DashboardPage() {
       </div>
 
       {/* 統計カード */}
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-6 md:grid-cols-3">
         {user.role === 'company' ? (
           <>
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>申請中</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">申請中</p>
+                <CardTitle className="text-3xl text-white">{stats.pending_requests}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  承認待ちの申請
-                </p>
+                <p className="text-xs text-slate-500">承認待ちの申請</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>承認済み</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">承認済み</p>
+                <CardTitle className="text-3xl text-white">{stats.approved_requests}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  マッチング成立
-                </p>
+                <p className="text-xs text-slate-500">マッチング成立</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>未読メッセージ</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">未読メッセージ</p>
+                <CardTitle className="text-3xl text-white">{stats.unread_messages}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  新着メッセージ
-                </p>
+                <p className="text-xs text-slate-500">新着メッセージ</p>
               </CardContent>
             </Card>
           </>
         ) : user.role === 'agency' ? (
           <>
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>新着申請</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">新着申請</p>
+                <CardTitle className="text-3xl text-white">{stats.pending_requests}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  未対応の申請
-                </p>
+                <p className="text-xs text-slate-500">未対応の申請</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>対応中企業</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">対応中企業</p>
+                <CardTitle className="text-3xl text-white">{stats.approved_requests}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  マッチング中
-                </p>
+                <p className="text-xs text-slate-500">マッチング中</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader className="pb-2">
-                <CardDescription>未読メッセージ</CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
+                <p className="text-sm text-slate-400">未読メッセージ</p>
+                <CardTitle className="text-3xl text-white">{stats.unread_messages}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-500">
-                  新着メッセージ
-                </p>
+                <p className="text-xs text-slate-500">新着メッセージ</p>
               </CardContent>
             </Card>
           </>
@@ -104,60 +151,48 @@ export default async function DashboardPage() {
       </div>
 
       {/* クイックアクション */}
-      <Card>
+      <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
-          <CardTitle>クイックアクション</CardTitle>
-          <CardDescription>
-            よく使う機能へ素早くアクセス
-          </CardDescription>
+          <CardTitle className="text-white">クイックアクション</CardTitle>
+          <p className="text-sm text-slate-400">よく使う機能へ素早くアクセス</p>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             {user.role === 'company' ? (
               <>
-                <Button asChild variant="outline" className="h-auto py-4">
+                <Button asChild variant="outline" className="h-auto py-4 border-slate-600 hover:bg-slate-700">
                   <Link href="/agencies" className="flex flex-col items-start">
-                    <span className="font-semibold">営業代行を探す</span>
-                    <span className="text-xs text-gray-500 mt-1">
-                      条件に合う営業代行を検索
-                    </span>
+                    <span className="font-semibold text-white">営業代行を探す</span>
+                    <span className="text-xs text-slate-400 mt-1">条件に合う営業代行を検索</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-auto py-4">
+                <Button asChild variant="outline" className="h-auto py-4 border-slate-600 hover:bg-slate-700">
                   <Link href="/matching-requests" className="flex flex-col items-start">
-                    <span className="font-semibold">申請状況を確認</span>
-                    <span className="text-xs text-gray-500 mt-1">
-                      送信した申請の状態
-                    </span>
+                    <span className="font-semibold text-white">申請状況を確認</span>
+                    <span className="text-xs text-slate-400 mt-1">送信した申請の状態</span>
                   </Link>
                 </Button>
               </>
             ) : user.role === 'agency' ? (
               <>
-                <Button asChild variant="outline" className="h-auto py-4">
+                <Button asChild variant="outline" className="h-auto py-4 border-slate-600 hover:bg-slate-700">
                   <Link href="/matching-requests" className="flex flex-col items-start">
-                    <span className="font-semibold">申請を確認</span>
-                    <span className="text-xs text-gray-500 mt-1">
-                      企業からの新着申請
-                    </span>
+                    <span className="font-semibold text-white">申請を確認</span>
+                    <span className="text-xs text-slate-400 mt-1">企業からの新着申請</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-auto py-4">
+                <Button asChild variant="outline" className="h-auto py-4 border-slate-600 hover:bg-slate-700">
                   <Link href="/messages" className="flex flex-col items-start">
-                    <span className="font-semibold">メッセージ</span>
-                    <span className="text-xs text-gray-500 mt-1">
-                      企業とのやり取り
-                    </span>
+                    <span className="font-semibold text-white">メッセージ</span>
+                    <span className="text-xs text-slate-400 mt-1">企業とのやり取り</span>
                   </Link>
                 </Button>
               </>
             ) : null}
-            <Button asChild variant="outline" className="h-auto py-4">
+            <Button asChild variant="outline" className="h-auto py-4 border-slate-600 hover:bg-slate-700">
               <Link href="/profile" className="flex flex-col items-start">
-                <span className="font-semibold">プロフィール編集</span>
-                <span className="text-xs text-gray-500 mt-1">
-                  情報を更新
-                </span>
+                <span className="font-semibold text-white">プロフィール編集</span>
+                <span className="text-xs text-slate-400 mt-1">情報を更新</span>
               </Link>
             </Button>
           </div>
@@ -166,4 +201,3 @@ export default async function DashboardPage() {
     </div>
   )
 }
-
