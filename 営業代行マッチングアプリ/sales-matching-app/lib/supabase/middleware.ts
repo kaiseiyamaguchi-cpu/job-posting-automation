@@ -37,6 +37,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // 認証APIルートは認証チェックをスキップ
+  if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+    return supabaseResponse
+  }
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
