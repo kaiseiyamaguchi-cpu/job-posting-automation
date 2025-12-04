@@ -1,171 +1,191 @@
-'use client'
+"use client";
 
-import { use, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { RequestModal } from "@/components/matching/RequestModal";
+import { ArrowLeft, MapPin, Briefcase, Phone } from "lucide-react";
+import type { AgencyProfile } from "@/types";
 
-// TODO: 担当者AのActions（A1.2, A1.3）完成後にServer Componentに変更
+interface AgencyDetailPageProps {
+  params: Promise<{ id: string }>;
+}
 
-export default function AgencyDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  const router = useRouter()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+export default function AgencyDetailPage({ params }: AgencyDetailPageProps) {
+  const router = useRouter();
+  const [agency, setAgency] = useState<AgencyProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [agencyId, setAgencyId] = useState<string>("");
 
-  // TODO: 担当者AのActions完成後に実際のデータ取得
-  // const agency = await getAgencyById(id)
+  useEffect(() => {
+    const fetchData = async () => {
+      const resolvedParams = await params;
+      setAgencyId(resolvedParams.id);
+      fetchAgency(resolvedParams.id);
+    };
+    fetchData();
+  }, [params]);
 
-  // 仮データ
-  const agency = {
-    id,
-    name: '営業代行サンプル',
-    specialties: ['IT', 'SaaS', 'BtoB'],
-    areas: ['東京', '神奈川', '大阪'],
-    bio: 'IT業界を中心に営業代行サービスを提供しています。',
-    phone_number: '03-1234-5678',
+  const fetchAgency = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/sales-agencies/${id}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setAgency(data);
+      } else {
+        console.error("営業代行が見つかりません");
+      }
+    } catch (error) {
+      console.error("営業代行詳細取得エラー:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-slate-400">読み込み中...</p>
+      </div>
+    );
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-
-    // TODO: 担当者AのActions（A1.3）完成後に実装
-    // const formData = new FormData(e.currentTarget)
-    // await createMatchingRequest({ ... }, id)
-
-    setLoading(false)
-    setIsModalOpen(false)
-    router.push('/matching-requests')
+  if (!agency) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 space-y-4">
+        <p className="text-slate-400">営業代行が見つかりませんでした</p>
+        <Button variant="outline" onClick={() => router.push("/agencies")}>
+          一覧に戻る
+        </Button>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Button 
-        variant="outline" 
-        className="mb-6"
-        onClick={() => router.back()}
+    <div className="space-y-6 max-w-4xl">
+      {/* 戻るボタン */}
+      <Button
+        variant="ghost"
+        onClick={() => router.push("/agencies")}
+        className="text-slate-400 hover:text-white"
       >
-        ← 戻る
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        一覧に戻る
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{agency.name}</CardTitle>
-          <CardDescription>営業代行プロフィール</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      {/* メインカード */}
+      <Card className="bg-slate-800/50 border-slate-700 p-8">
+        <div className="space-y-6">
+          {/* 名前 */}
           <div>
-            <h3 className="font-semibold mb-2">得意分野</h3>
+            <h1 className="text-3xl font-bold text-white mb-2">{agency.name}</h1>
+            {agency.phone_number && (
+              <div className="flex items-center gap-2 text-slate-300">
+                <Phone className="h-4 w-4" />
+                <span>{agency.phone_number}</span>
+              </div>
+            )}
+          </div>
+
+          {/* 得意分野 */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Briefcase className="h-5 w-5 text-slate-400" />
+              <h2 className="text-lg font-semibold text-white">得意分野</h2>
+            </div>
             <div className="flex flex-wrap gap-2">
               {agency.specialties.map((specialty) => (
-                <Badge key={specialty}>{specialty}</Badge>
+                <Badge
+                  key={specialty}
+                  variant="outline"
+                  className="bg-blue-500/10 text-blue-400 border-blue-500/50"
+                >
+                  {specialty}
+                </Badge>
               ))}
             </div>
           </div>
 
+          {/* 対応エリア */}
           <div>
-            <h3 className="font-semibold mb-2">対応エリア</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="h-5 w-5 text-slate-400" />
+              <h2 className="text-lg font-semibold text-white">対応エリア</h2>
+            </div>
             <div className="flex flex-wrap gap-2">
               {agency.areas.map((area) => (
-                <Badge key={area} variant="outline">{area}</Badge>
+                <Badge
+                  key={area}
+                  variant="outline"
+                  className="bg-green-500/10 text-green-400 border-green-500/50"
+                >
+                  {area}
+                </Badge>
               ))}
             </div>
           </div>
 
-          <div>
-            <h3 className="font-semibold mb-2">自己PR</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">
-              {agency.bio}
-            </p>
+          {/* 自己PR */}
+          {agency.bio && (
+            <div>
+              <h2 className="text-lg font-semibold text-white mb-3">自己PR</h2>
+              <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                <p className="text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {agency.bio}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* マッチング申請ボタン */}
+          <div className="pt-4">
+            <Button
+              onClick={() => setShowRequestModal(true)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
+            >
+              マッチング申請を送る
+            </Button>
           </div>
-
-          <div>
-            <h3 className="font-semibold mb-2">連絡先</h3>
-            <p className="text-gray-700">{agency.phone_number}</p>
-          </div>
-
-          {/* マッチング申請モーダル */}
-          {/* TODO: 担当者BのRequestModal（B1.5）完成後に置き換え */}
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="w-full">
-                マッチング申請を送る
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>マッチング申請</DialogTitle>
-                <DialogDescription>
-                  {agency.name}への申請内容を入力してください
-                </DialogDescription>
-              </DialogHeader>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="monthly_budget">月予算（円）</Label>
-                  <Input
-                    id="monthly_budget"
-                    name="monthly_budget"
-                    type="number"
-                    placeholder="300000"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="request_details">依頼内容</Label>
-                  <Textarea
-                    id="request_details"
-                    name="request_details"
-                    placeholder="具体的な依頼内容を入力してください"
-                    rows={5}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="proposal_deadline">提案期限</Label>
-                  <Input
-                    id="proposal_deadline"
-                    name="proposal_deadline"
-                    type="date"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setIsModalOpen(false)}
-                    disabled={loading}
-                  >
-                    キャンセル
-                  </Button>
-                  <Button type="submit" className="flex-1" disabled={loading}>
-                    {loading ? '送信中...' : '申請を送信'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </CardContent>
+        </div>
       </Card>
-    </div>
-  )
-}
 
+      {/* マッチング申請モーダル */}
+      {agency && (
+        <RequestModal
+          isOpen={showRequestModal}
+          onClose={() => setShowRequestModal(false)}
+          agencyName={agency.name}
+          agencyId={agencyId}
+          onSubmit={async (formData) => {
+            try {
+              const response = await fetch('/api/matching-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  ...formData,
+                  agency_id: agencyId,
+                }),
+              });
+
+              if (response.ok) {
+                alert('マッチング申請を送信しました');
+                router.push('/matching-requests');
+              } else {
+                const data = await response.json();
+                alert(data.error || '申請に失敗しました');
+              }
+            } catch (error) {
+              console.error('申請エラー:', error);
+              alert('サーバーエラーが発生しました');
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}

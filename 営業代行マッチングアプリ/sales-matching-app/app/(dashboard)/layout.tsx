@@ -1,40 +1,39 @@
-import { redirect } from 'next/navigation'
-import { requireAuth } from '@/lib/auth'
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default async function DashboardLayout({
+export default async function Layout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  
   // 認証チェック
-  const user = await requireAuth()
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    redirect("/login");
+  }
 
-  // TODO: 担当者Bのレイアウトコンポーネント完成後に統合
-  // import { DashboardLayout } from '@/components/layout/DashboardLayout'
-  // return <DashboardLayout userRole={user.role}>{children}</DashboardLayout>
+  // ユーザー情報取得
+  const { data: profile } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 仮のナビゲーション */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">営業代行マッチング</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{user.email}</span>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {user.role === 'company' ? '企業' : user.role === 'agency' ? '営業代行' : '管理者'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </nav>
+  if (!profile) {
+    redirect("/login");
+  }
 
-      {/* メインコンテンツ */}
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
-    </div>
-  )
+  const userData = {
+    id: profile.id,
+    email: profile.email,
+    role: profile.role,
+    created_at: profile.created_at,
+    updated_at: profile.updated_at,
+  };
+
+  return <DashboardLayout user={userData}>{children}</DashboardLayout>;
 }
-
