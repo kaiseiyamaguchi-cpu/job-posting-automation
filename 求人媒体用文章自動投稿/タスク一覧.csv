@@ -1,0 +1,49 @@
+カテゴリ,No,タスク,詳細,完了条件,担当,ステータス
+GCP設定,1,GCPプロジェクト作成,"GCPコンソール(console.cloud.google.com)で新規プロジェクト作成。プロジェクト名: olp-job-automation",プロジェクトIDが発行される,開発者,Done
+GCP設定,2,Google Sheets API有効化,"[APIとサービス] > [ライブラリ] > 「Google Sheets API」を検索して有効化",APIステータスが「有効」になる,開発者,Done
+GCP設定,3,Google Drive API有効化,"[APIとサービス] > [ライブラリ] > 「Google Drive API」を検索して有効化",APIステータスが「有効」になる,開発者,Done
+GCP設定,4,Generative Language API有効化,"[APIとサービス] > [ライブラリ] > 「Generative Language API」(Gemini)を検索して有効化",APIステータスが「有効」になる,開発者,Done
+GCP設定,5,gcloud CLIインストール確認,"https://cloud.google.com/sdk/docs/install からgcloud CLIをインストール（既存なら確認のみ）",`gcloud --version` でバージョンが表示される,開発者,Done
+GCP設定,6,gcloud CLIでプロジェクト設定,"`gcloud config set project <プロジェクトID>` を実行",`gcloud config get project` でプロジェクトIDが表示される,開発者,Done
+GCP設定,7,ADC認証の実行,"`gcloud auth application-default login` を実行→ブラウザでGoogleアカウント認証",~/.config/gcloud/application_default_credentials.json が生成される,開発者,Done
+GCP設定,8,Gemini APIキー取得,"[APIとサービス] > [認証情報] > [認証情報を作成] > [APIキー] でGemini用APIキーを発行",GEMINI_API_KEY（例: AIzaSy...）が取得できる,開発者,Done
+Python環境,9,プロジェクトフォルダ作成,ターミナルで `mkdir olp-job-automation && cd olp-job-automation`,olp-job-automationフォルダが作成される,開発者,Done
+Python環境,10,Python仮想環境作成,`python3 -m venv venv` で仮想環境を作成,venvフォルダが生成される,開発者,Done
+Python環境,11,仮想環境のアクティベート,`source venv/bin/activate` (Mac) または `venv\Scripts\activate` (Win),ターミナルに(venv)が表示される,開発者,Done
+Python環境,12,requirements.txt作成,"ファイル作成: gspread / google-auth / playwright の3行を記載",requirements.txtが存在する,開発者,Done
+Python環境,13,Pythonライブラリインストール,`pip install -r requirements.txt` を実行,pip listでgspread, google-auth, playwrightが表示される,開発者,Done
+Python環境,14,Playwrightブラウザインストール,`playwright install chromium` を実行,Chromiumがダウンロード・インストールされる,開発者,Done
+Python環境,15,.gitignore作成,"venv/, __pycache__/ を記載してGit管理から除外",.gitignoreファイルが存在する,開発者,Done
+スプレッドシート,16,新規スプレッドシート作成,"Google Driveで新規スプレッドシートを作成。ファイル名: 「OLP求人自動投稿デモ」",スプレッドシートが作成されURLが確定する,開発者,Done
+スプレッドシート,17,シート名変更,デフォルトの「シート1」を「Sheet1」にリネーム,シートタブ名が「Sheet1」になる,開発者,Done
+スプレッドシート,18,ヘッダー行設定,"A1:元ネタ（Input）, B1:Indeed用原稿, C1:求人ボックス用原稿, D1:エンゲージ用原稿, E1:ステータス を入力",1行目にヘッダーが設定される,開発者,Done
+スプレッドシート,19,サンプルデータ行追加,"A2に「コールセンターSV募集。月給30万〜。未経験OK。」、E2に「未着手」を入力",2行目にテストデータが入る,開発者,Done
+スプレッドシート,20,共有設定不要確認,"ADC認証を使用するため、自分のGoogleアカウントでそのまま編集可能。サービスアカウントへの共有は不要",自分のアカウントでスプレッドシートが編集できる,開発者,Done
+GAS実装,21,Apps Scriptプロジェクト作成,[拡張機能] > [Apps Script] でエディタを開く,Apps Scriptエディタが開く,開発者,Done
+GAS実装,22,スクリプトプロパティにAPIキー設定,"[プロジェクトの設定] > [スクリプトプロパティ] > キー: GEMINI_API_KEY, 値: AIzaSyCy3lTWIVVKasS-mo9wS2ebSN8jFHaNJ2w",スクリプトプロパティにGEMINI_API_KEYが登録される,開発者,Done
+GAS実装,23,onOpen関数実装,"メニュー「OLPツール」を追加し、「AI原稿生成」メニューアイテムを配置",スプレッドシート再読み込み時にメニューが表示される,開発者,Done
+GAS実装,24,callGeminiAPI関数実装,"Gemini API(generativelanguage.googleapis.com)へのHTTPリクエスト処理。モデル: gemini-1.5-flash",関数単体テストでレスポンスが返る,開発者,Done
+GAS実装,25,generateJobPosts関数実装,"A列の入力取得→プロンプト組立→Gemini API呼出→B列(Indeed)/C列(求人ボックス)/D列(エンゲージ)に結果書込→E列を「AI生成済」に更新",メニュー実行でB〜D列に文章が生成される,開発者,Done
+GAS実装,26,エラーハンドリング追加,"try-catch + SpreadsheetApp.getUi().alert()でエラー時にダイアログ表示",APIエラー時に分かりやすいメッセージが表示される,開発者,Done
+Python実装,27,config.py作成,"SHEET_NAME, WORKSHEET_NAME, CHROME_DEBUG_URL, TARGET_SITE等の設定値を定数として定義",設定値が一箇所で管理される,開発者,Done
+Python実装,28,spreadsheet.py - ADC接続関数実装,"connect_sheet()関数: gcloud ADC認証でgspread接続→シートオブジェクト返却（credentials.json不要）",関数呼び出しでシートに接続できる,開発者,Done
+Python実装,29,spreadsheet.py - データ取得関数実装,"get_pending_rows()関数: ステータス「投稿開始」の行をリストで返す（Indeed/求人ボックス/エンゲージの3原稿）",「投稿開始」行のみ抽出される,開発者,Done
+Python実装,30,spreadsheet.py - ステータス更新関数実装,"update_status(row_num, status)関数: 指定行のE列を更新",ステータスが「完了」等に更新される,開発者,Done
+Python実装,31,browser.py - 接続関数実装,"connect_to_chrome()関数: localhost:9222にCDP接続→browserオブジェクト返却",デバッグモードChromeに接続できる,開発者,Done
+Python実装,32,browser.py - Indeed投稿関数実装,"post_to_indeed(page, text)関数: Indeedの求人投稿フォームにテキスト入力（セレクタは調整前提）",フォームにテキストが入力される,開発者,Done
+Python実装,33,browser.py - 求人ボックス投稿関数実装,"post_to_kyujinbox(page, text)関数: 求人ボックスの求人投稿フォームにテキスト入力（セレクタは調整前提）",フォームにテキストが入力される,開発者,Done
+Python実装,34,browser.py - エンゲージ投稿関数実装,"post_to_engage(page, text)関数: エンゲージの求人投稿フォームにテキスト入力（セレクタは調整前提）",フォームにテキストが入力される,開発者,Done
+Python実装,35,browser.py - 演出用マウス移動実装,"move_mouse_for_demo(page)関数: デモ映え用にマウスカーソルをゆっくり動かす",マウスが自然に動いて「自動操作感」が出る,開発者,Done
+Python実装,36,main.py - メインループ実装,"while True: シート監視→「投稿開始」行検知→ブラウザ操作→ステータス更新。ポーリング間隔: 3秒",スクリプト起動でシート監視が開始される,開発者,Done
+Python実装,37,main.py - 例外処理追加,接続エラー・タイムアウト時のリトライ処理とログ出力,エラー発生してもスクリプトが落ちずリトライする,開発者,Done
+デモ準備,38,Chromeデバッグモード起動確認,"コマンド実行: /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=""/tmp/chrome_debug""",Chromeが起動し localhost:9222/json にアクセスできる,開発者,未着手
+デモ準備,39,Indeedログイン実施,デバッグモードChromeでIndeedにログイン,求人管理ダッシュボードが表示される,開発者,未着手
+デモ準備,40,Indeed求人投稿フォーム確認,「新規求人を作成」画面を開いてHTMLセレクタを確認,入力欄のselector（id/class/name属性）が特定できる,開発者,未着手
+デモ準備,41,セレクタをbrowser.pyに反映,確認したセレクタをpost_to_indeed()関数内のpage.fill()等に設定,正しいセレクタがコードに記載される,開発者,未着手
+デモ準備,42,予備デモ用Googleフォーム作成,各媒体接続失敗時用に「ダミー求人入力フォーム」をGoogleフォームで作成,フォームURLが発行される,開発者,未着手
+デモ準備,43,browser.pyにフォーム切替実装,config.pyで TARGET_SITE = 'indeed' / 'kyujinbox' / 'engage' / 'google_form' を切替可能にする,設定値変更で投稿先が切り替わる,開発者,Done
+動作確認,44,単体テスト - GAS,メニュー「OLPツール」>「AI原稿生成」を実行してB〜D列に文章生成を確認,Gemini APIからの応答がセルに書き込まれる,開発者,未着手
+動作確認,45,単体テスト - Python スプレッドシート接続,`python -c "from spreadsheet import connect_sheet; print(connect_sheet())"` で接続確認,エラーなくシートオブジェクトが返る,開発者,未着手
+動作確認,46,単体テスト - Python ブラウザ接続,Chromeデバッグ起動状態で `python -c "from browser import connect_to_chrome; print(connect_to_chrome())"`,エラーなくbrowserオブジェクトが返る,開発者,未着手
+動作確認,47,E2Eテスト実施,"1.スプレッドシートA列入力→2.GASメニューでAI生成→3.ステータスを「投稿開始」に変更→4.Pythonがブラウザ操作→5.ステータス「完了」",一連の流れが自動で完了する,開発者,未着手
+動作確認,48,デモリハーサル,本番想定で通しリハーサル。タイミング・説明文言を確認,デモが3分以内にスムーズに完了する,開発者,未着手

@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSUZUKU - 学習管理アプリ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 375px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+            min-height: 667px;
+        }
+
+        .screen {
+            display: none;
+            min-height: 667px;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ヘッダー */
+        .header {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* ボタン */
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        .btn-secondary:hover {
+            background: #eff6ff;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        /* アクションボタン（管理画面用） */
+        .action-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .action-btn.danger {
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        .action-btn.danger:hover {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .action-btn.primary {
+            color: #3b82f6;
+            border-color: #93c5fd;
+        }
+
+        .action-btn.primary:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .action-btn .material-icons {
+            font-size: 16px;
+        }
+
+        /* アクションメニュー */
+        .action-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .action-menu-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #6b7280;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .action-menu-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .action-menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        .action-menu.active .action-menu-content {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #374151;
+            font-size: 14px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .action-menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .action-menu-item.danger {
+            color: #dc2626;
+        }
+
+        .action-menu-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        .action-menu-item .material-icons {
+            font-size: 18px;
+        }
+
+        /* フォーム */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* コンテンツエリア */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content-centered {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* タブナビゲーション */
+        .tab-nav {
+            display: flex;
+            background: white;
+            border-top: 1px solid #e8ecf0;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border: none;
+            background: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .tab-item.active {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .tab-item .material-icons {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* カード */
+        .card {
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        /* プロジェクトカード */
+        .project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .project-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* 広告エリア */
+        .banner-area {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 学習中ユーザー */
+        .learning-users {
+            text-align: center;
+            padding: 12px;
+            background: #eff6ff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        /* タイマー */
+        .timer {
+            text-align: center;
+            padding: 32px;
+            margin: 20px 0;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 24px;
+        }
+
+        /* ストリーク */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* ランキング */
+        .ranking-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .ranking-tab {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .ranking-tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ranking-item.me {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .rank-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+            min-width: 32px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            font-size: 32px;
+        }
+
+        /* メッセージ（LINE風） */
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 80px;
+            padding-bottom: 20px;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .message-username {
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .message-bubble {
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 0 18px 18px 18px;
+            padding: 10px 14px;
+            display: inline-block;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .message-text {
+            color: #1f2937;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .report-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .report-btn:hover {
+            color: #ef4444;
+        }
+
+        .load-more-btn {
+            text-align: center;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            color: #3b82f6;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid #e8ecf0;
+            transition: background 0.2s;
+        }
+
+        .load-more-btn:hover {
+            background: #f3f4f6;
+        }
+
+        /* 入力エリア */
+        .message-input-area {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 375px;
+            background: white;
+            border-top: 1px solid #e8ecf0;
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* 学習履歴リスト */
+        .learning-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .learning-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e8ecf0;
+        }
+
+        .learning-history-item.completed {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .history-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #3b82f6;
+            font-size: 14px;
+        }
+
+        /* 設定項目 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #e8ecf0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .toggle {
+            width: 48px;
+            height: 28px;
+            background: #d1d5db;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle.active {
+            background: #3b82f6;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s;
+        }
+
+        .toggle.active::after {
+            left: 22px;
+        }
+
+        /* テーブル */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8ecf0;
+            font-size: 14px;
+        }
+
+        .table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* バッジ */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-free {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .badge-pro {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-trial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 335px;
+            width: calc(100% - 40px);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* リンク */
+        .link {
+            color: #3b82f6;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        /* グラフ（Pro限定） */
+        .graph-locked {
+            position: relative;
+            padding: 60px 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .lock-icon {
+            font-size: 32px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .graph-locked p {
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        /* 曜日選択 */
+        .weekday-selector {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .weekday-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .weekday-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* 比較表 */
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .comparison-table th {
+            background: #f9fafb;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e8ecf0;
+        }
+
+        .comparison-table .check {
+            color: #10b981;
+            font-size: 20px;
+        }
+
+        .comparison-table .cross {
+            color: #ef4444;
+            font-size: 20px;
+        }
+
+        /* ロゴ */
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        /* ユーティリティ */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-small {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .mb-16 {
+            margin-bottom: 16px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* スクリーン切り替えボタン（デモ用） */
+        .screen-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .screen-nav h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .screen-nav button {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: white;
+            border: 1px solid #e8ecf0;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .screen-nav button:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+        }
+
+        .screen-nav button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .screen-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 画面ナビゲーション（デモ用） -->
+    <div class="screen-nav">
+        <h3>画面一覧</h3>
+        <button onclick="showScreen('auth-01')" class="active">AUTH-01: ログイン</button>
+        <button onclick="showScreen('auth-02')">AUTH-02: 新規登録</button>
+        <button onclick="showScreen('auth-03')">AUTH-03: パスワードリセット</button>
+        <button onclick="showScreen('home-01')">HOME-01: ホーム</button>
+        <button onclick="showScreen('home-02')">HOME-02: プロジェクト作成/編集</button>
+        <button onclick="showScreen('rank-01')">RANK-01: ランキング</button>
+        <button onclick="showScreen('comm-01')">COMM-01: コミュニティ</button>
+        <button onclick="showScreen('comm-02')">COMM-02: 通報フォーム</button>
+        <button onclick="showScreen('prof-01')">PROF-01: プロフィール</button>
+        <button onclick="showScreen('prof-02')">PROF-02: プロフィール編集</button>
+        <button onclick="showScreen('sett-01')">SETT-01: 設定</button>
+        <button onclick="showScreen('subs-01')">SUBS-01: サブスクリプション</button>
+        <button onclick="showScreen('subs-02')">SUBS-02: トライアル開始確認</button>
+        <button onclick="showScreen('err-01')">ERR-01: アカウント停止</button>
+        <button onclick="showScreen('admin-01')">ADMIN-01: 管理者ダッシュボード</button>
+        <button onclick="showScreen('admin-02')">ADMIN-02: ユーザー管理</button>
+        <button onclick="showScreen('admin-03')">ADMIN-03: 通報管理</button>
+        <button onclick="showScreen('admin-04')">ADMIN-04: 広告管理</button>
+        <button onclick="showScreen('admin-05')">ADMIN-05: 広告作成/編集</button>
+    </div>
+
+    <div id="app">
+        <!-- AUTH-01: ログイン画面 -->
+        <div id="auth-01" class="screen active">
+            <div class="content content-centered">
+                <div class="logo">
+                    <h1>TSUZUKU</h1>
+                    <p>継続を称える学習管理アプリ</p>
+                </div>
+
+                <div style="width: 100%;">
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス</label>
+                        <input type="email" class="form-input" placeholder="example@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">パスワード</label>
+                        <input type="password" class="form-input" placeholder="••••••••">
+                    </div>
+
+                    <button class="btn" onclick="showScreen('home-01')">ログイン</button>
+
+                    <div class="text-center mt-20">
+                        <a class="link" onclick="showScreen('auth-03')">パスワードを忘れた方</a>
+                    </div>
+
+                    <div class="text-center mt-20">
+                        <span class="text-small">アカウントをお持ちでない方は</span><br>
+                        <a class="link" onclick="showScreen('auth-02')">新規登録はこちら</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTH-02: 新規登録画面 -->
+        <div id="auth-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('auth-01')">← 戻る</button>
+                <h1>新規登録</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-input" placeholder="example@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">パスワード（8文字以上）</label>
+                    <input type="password" class="form-input" placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">パスワード確認</label>
+                    <input type="password" class="form-input" placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ニックネーム</label>
+                    <input type="text" class="form-input" placeholder="山田太郎">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms">
+                        <label for="terms">
+                            <a class="link" onclick="showScreen('static-01')">利用規約</a>に同意する
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="showScreen('subs-02')">登録</button>
+
+                <div class="text-center mt-20">
+                    <span class="text-small">アカウントをお持ちの方は</span><br>
+                    <a class="link" onclick="showScreen('auth-01')">ログインはこちら</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTH-03: パスワードリセット画面 -->
+        <div id="auth-03" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('auth-01')">← 戻る</button>
+                <h1>パスワードリセット</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <p class="text-small mb-20">
+                    入力されたメールアドレスにパスワード再設定用のリンクを送信します。
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-input" placeholder="example@email.com">
+                </div>
+
+                <button class="btn" onclick="alert('パスワードリセットメールを送信しました'); showScreen('auth-01')">送信</button>
+            </div>
+        </div>
+
+        <!-- HOME-01: ホーム画面 -->
+        <div id="home-01" class="screen">
+            <div class="content">
+                <!-- 広告エリア -->
+                <div class="banner-area">
+                    <strong>📢 お知らせ</strong><br>
+                    新機能リリース！年間ランキング開始
+                </div>
+
+                <!-- 現在学習中ユーザー数 -->
+                <div class="learning-users">
+                    👥 現在 248人 が学習中
+                </div>
+
+                <!-- ストリーク -->
+                <div class="text-center mb-16">
+                    <div class="streak-badge">
+                        🔥 連続 12日
+                    </div>
+                </div>
+
+                <!-- 学習セッション -->
+                <div class="card">
+                    <div class="timer">
+                        <div class="timer-display">00:00:00</div>
+                        <button class="btn" onclick="toggleTimer(this)">学習を開始</button>
+                    </div>
+                </div>
+
+                <!-- プロジェクトカード（複数表示） -->
+                <div class="project-card">
+                    <h3>📘 TOEIC 公式問題集</h3>
+                    <div class="progress-info">
+                        <span>120 / 500 ページ</span>
+                        <span>24%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 24%"></div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="showScreen('home-02')">編集</button>
+                </div>
+
+                <div class="project-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>📕 簿記2級テキスト</h3>
+                    <div class="progress-info">
+                        <span>85 / 320 ページ</span>
+                        <span>27%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 27%"></div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="showScreen('home-02')">編集</button>
+                </div>
+
+                <div class="project-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>📗 プログラミング入門</h3>
+                    <div class="progress-info">
+                        <span>200 / 400 ページ</span>
+                        <span>50%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="showScreen('home-02')">編集</button>
+                </div>
+
+                <button class="btn btn-secondary" onclick="showScreen('home-02')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">add</span>
+                    プロジェクトを追加
+                </button>
+            </div>
+
+            <!-- タブナビゲーション -->
+            <div class="tab-nav">
+                <button class="tab-item active" onclick="showScreen('home-01')">
+                    <span class="material-icons">home</span>
+                    ホーム
+                </button>
+                <button class="tab-item" onclick="showScreen('rank-01')">
+                    <span class="material-icons">emoji_events</span>
+                    ランキング
+                </button>
+                <button class="tab-item" onclick="showScreen('comm-01')">
+                    <span class="material-icons">forum</span>
+                    コミュニティ
+                </button>
+                <button class="tab-item" onclick="showScreen('prof-01')">
+                    <span class="material-icons">person</span>
+                    プロフィール
+                </button>
+            </div>
+        </div>
+
+        <!-- HOME-02: プロジェクト作成/編集画面 -->
+        <div id="home-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('home-01')">← 戻る</button>
+                <h1>プロジェクト編集</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="form-group">
+                    <label class="form-label">プロジェクト名</label>
+                    <input type="text" class="form-input" value="TOEIC 公式問題集" placeholder="プロジェクト名を入力">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">総ページ数（変更不可）</label>
+                    <input type="number" class="form-input" value="500" disabled style="background: #f3f4f6;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">開始日</label>
+                    <input type="date" class="form-input" value="2025-01-01">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">終了予定日</label>
+                    <input type="date" class="form-input" value="2025-03-31">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">学習曜日</label>
+                    <div class="weekday-selector">
+                        <button class="weekday-btn active">月</button>
+                        <button class="weekday-btn active">火</button>
+                        <button class="weekday-btn active">水</button>
+                        <button class="weekday-btn active">木</button>
+                        <button class="weekday-btn active">金</button>
+                        <button class="weekday-btn">土</button>
+                        <button class="weekday-btn">日</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">起床時間</label>
+                    <input type="time" class="form-input" value="06:00">
+                </div>
+
+                <div style="padding: 12px; background: #eff6ff; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #3b82f6;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <span class="material-icons" style="color: #3b82f6; font-size: 20px;">info</span>
+                        <div style="font-size: 13px; color: #1e40af; line-height: 1.6;">
+                            <strong>ページ数について</strong><br>
+                            学習終了時のページ数入力は、現在の完了ページ数（120ページ）より大きい値のみ入力できます。
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn mb-16" onclick="showScreen('home-01')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">save</span>
+                    保存
+                </button>
+                <button class="btn btn-danger" onclick="if(confirm('このプロジェクトを削除しますか？この操作は取り消せません。')) { alert('削除しました'); showScreen('home-01'); }">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">delete</span>
+                    削除
+                </button>
+            </div>
+        </div>
+
+        <!-- RANK-01: ランキング画面 -->
+        <div id="rank-01" class="screen">
+            <div class="content">
+                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">🏆 ランキング</h1>
+
+                <!-- 期間切り替え -->
+                <div class="ranking-tabs">
+                    <button class="ranking-tab active">月間</button>
+                    <button class="ranking-tab">年間</button>
+                </div>
+
+                <!-- 月切り替え -->
+                <div class="ranking-tabs">
+                    <button class="ranking-tab active">今月</button>
+                    <button class="ranking-tab">先月</button>
+                </div>
+
+                <!-- ランキングリスト -->
+                <div class="ranking-item">
+                    <div class="rank-number">1</div>
+                    <div class="avatar">山</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">山田太郎</div>
+                        <div class="text-small">1,523 pt</div>
+                    </div>
+                </div>
+
+                <div class="ranking-item">
+                    <div class="rank-number">2</div>
+                    <div class="avatar">佐</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">佐藤花子</div>
+                        <div class="text-small">1,498 pt</div>
+                    </div>
+                </div>
+
+                <div class="ranking-item">
+                    <div class="rank-number">3</div>
+                    <div class="avatar">鈴</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">鈴木一郎</div>
+                        <div class="text-small">1,385 pt</div>
+                    </div>
+                </div>
+
+                <div class="ranking-item me">
+                    <div class="rank-number">12</div>
+                    <div class="avatar">あ</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">あなた</div>
+                        <div class="text-small">892 pt</div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-20 text-small">
+                    TOP20に入ると特典がもらえます！
+                </div>
+            </div>
+
+            <!-- タブナビゲーション -->
+            <div class="tab-nav">
+                <button class="tab-item" onclick="showScreen('home-01')">
+                    <span class="material-icons">home</span>
+                    ホーム
+                </button>
+                <button class="tab-item active" onclick="showScreen('rank-01')">
+                    <span class="material-icons">emoji_events</span>
+                    ランキング
+                </button>
+                <button class="tab-item" onclick="showScreen('comm-01')">
+                    <span class="material-icons">forum</span>
+                    コミュニティ
+                </button>
+                <button class="tab-item" onclick="showScreen('prof-01')">
+                    <span class="material-icons">person</span>
+                    プロフィール
+                </button>
+            </div>
+        </div>
+
+        <!-- COMM-01: コミュニティ画面 -->
+        <div id="comm-01" class="screen">
+            <div class="content">
+                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">forum</span>
+                    コミュニティ
+                </h1>
+
+                <!-- 過去のメッセージを読み込む -->
+                <div class="load-more-btn" onclick="alert('過去のメッセージを読み込みました')">
+                    <span class="material-icons" style="vertical-align: middle; font-size: 18px;">expand_more</span>
+                    過去のメッセージを読み込む
+                </div>
+
+                <div class="message-list">
+                    <div class="message-item">
+                        <div class="message-avatar">山</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-username">山田太郎</span>
+                                <span class="message-time">2分前</span>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-text">
+                                    今日も朝5時に起きて勉強できました！継続は力なり💪
+                                </div>
+                            </div>
+                            <div class="message-actions">
+                                <button class="report-btn" onclick="showScreen('comm-02')">
+                                    <span class="material-icons" style="font-size: 14px;">flag</span>
+                                    通報
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-item">
+                        <div class="message-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">佐</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-username">佐藤花子</span>
+                                <span class="message-time">15分前</span>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-text">
+                                    TOEICの勉強、みなさんどんな教材使ってますか？おすすめあれば教えてください！
+                                </div>
+                            </div>
+                            <div class="message-actions">
+                                <button class="report-btn" onclick="showScreen('comm-02')">
+                                    <span class="material-icons" style="font-size: 14px;">flag</span>
+                                    通報
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-item">
+                        <div class="message-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">鈴</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-username">鈴木一郎</span>
+                                <span class="message-time">1時間前</span>
+                            </div>
+                            <div class="message-bubble">
+                                <div class="message-text">
+                                    ストリーク50日達成しました🎉 みなさんも一緒に頑張りましょう！
+                                </div>
+                            </div>
+                            <div class="message-actions">
+                                <button class="report-btn" onclick="showScreen('comm-02')">
+                                    <span class="material-icons" style="font-size: 14px;">flag</span>
+                                    通報
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- メッセージ入力エリア -->
+            <div class="message-input-area">
+                <input type="text" class="message-input" placeholder="メッセージを入力 (最大400文字)" id="messageInput">
+                <button class="send-btn" onclick="sendMessage()">
+                    <span class="material-icons" style="font-size: 20px;">send</span>
+                </button>
+            </div>
+
+            <!-- タブナビゲーション -->
+            <div class="tab-nav">
+                <button class="tab-item" onclick="showScreen('home-01')">
+                    <span class="material-icons">home</span>
+                    ホーム
+                </button>
+                <button class="tab-item" onclick="showScreen('rank-01')">
+                    <span class="material-icons">emoji_events</span>
+                    ランキング
+                </button>
+                <button class="tab-item active" onclick="showScreen('comm-01')">
+                    <span class="material-icons">forum</span>
+                    コミュニティ
+                </button>
+                <button class="tab-item" onclick="showScreen('prof-01')">
+                    <span class="material-icons">person</span>
+                    プロフィール
+                </button>
+            </div>
+        </div>
+
+        <!-- COMM-02: 通報フォーム -->
+        <div id="comm-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('comm-01')">← 戻る</button>
+                <h1>通報</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-title">対象メッセージ</div>
+                    <div class="message-item" style="border: none; padding: 0;">
+                        <div class="message-header">
+                            <div class="message-user">
+                                <div class="avatar" style="width: 32px; height: 32px; font-size: 12px;">山</div>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 14px;">山田太郎</div>
+                                    <div class="message-time">2分前</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message-text">
+                            今日も朝5時に起きて勉強できました！継続は力なり💪
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">通報理由</label>
+                    <textarea class="form-input" rows="5" placeholder="通報理由を詳しく入力してください"></textarea>
+                </div>
+
+                <button class="btn mb-16" onclick="alert('通報を送信しました'); showScreen('comm-01')">送信</button>
+                <button class="btn btn-secondary" onclick="showScreen('comm-01')">キャンセル</button>
+            </div>
+        </div>
+
+        <!-- PROF-01: プロフィール画面 -->
+        <div id="prof-01" class="screen">
+            <div class="content">
+                <!-- プロフィール情報 -->
+                <div class="text-center mb-20">
+                    <div class="avatar avatar-large" style="margin: 0 auto 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">あ</div>
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">あなた</h2>
+                    <p class="text-small">学習を習慣化して人生を変える！</p>
+                    <button class="btn btn-small mt-20" onclick="showScreen('prof-02')">
+                        <span class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 4px;">edit</span>
+                        プロフィール編集
+                    </button>
+                </div>
+
+                <!-- 統計情報 -->
+                <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-value">892</div>
+                        <div class="stat-label">ポイント</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12日</div>
+                        <div class="stat-label">ストリーク</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156h</div>
+                        <div class="stat-label">学習時間</div>
+                    </div>
+                </div>
+
+                <!-- 学習履歴（Free版） -->
+                <div class="card">
+                    <div class="card-title">📅 学習履歴（11月）</div>
+                    <div class="learning-history-list">
+                        <div class="learning-history-item completed">
+                            <div>
+                                <div class="history-date">11月5日（火）</div>
+                                <div class="history-time">06:00 開始</div>
+                            </div>
+                            <div class="history-badge">
+                                <span class="material-icons">check_circle</span>
+                                2.5時間
+                            </div>
+                        </div>
+                        <div class="learning-history-item completed">
+                            <div>
+                                <div class="history-date">11月4日（月）</div>
+                                <div class="history-time">05:45 開始</div>
+                            </div>
+                            <div class="history-badge">
+                                <span class="material-icons">check_circle</span>
+                                3時間
+                            </div>
+                        </div>
+                        <div class="learning-history-item completed">
+                            <div>
+                                <div class="history-date">11月3日（日）</div>
+                                <div class="history-time">06:30 開始</div>
+                            </div>
+                            <div class="history-badge">
+                                <span class="material-icons">check_circle</span>
+                                1.5時間
+                            </div>
+                        </div>
+                        <div class="learning-history-item">
+                            <div>
+                                <div class="history-date">11月2日（土）</div>
+                                <div class="history-time">休み</div>
+                            </div>
+                            <div style="color: #9ca3af;">
+                                <span class="material-icons">remove_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pro限定：月別詳細履歴 -->
+                <div class="card">
+                    <div class="card-title">
+                        📊 月別詳細履歴
+                        <span class="badge badge-pro" style="margin-left: 8px; font-size: 11px;">Pro</span>
+                    </div>
+                    <div class="graph-locked">
+                        <div class="lock-icon">
+                            <span class="material-icons" style="font-size: 48px; color: #9ca3af;">lock</span>
+                        </div>
+                        <p>Pro限定機能です</p>
+                        <p class="text-small">過去の月別学習履歴を詳しく確認できます</p>
+                        <button class="btn btn-small" onclick="showScreen('subs-01')">
+                            <span class="material-icons" style="vertical-align: middle; font-size: 16px; margin-right: 4px;">upgrade</span>
+                            アップグレード
+                        </button>
+                    </div>
+                </div>
+
+                <!-- メニューボタン -->
+                <button class="btn btn-secondary mb-16" onclick="showScreen('sett-01')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">settings</span>
+                    設定
+                </button>
+                <button class="btn btn-secondary" onclick="showScreen('subs-01')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">card_membership</span>
+                    サブスクリプション
+                </button>
+            </div>
+
+            <!-- タブナビゲーション -->
+            <div class="tab-nav">
+                <button class="tab-item" onclick="showScreen('home-01')">
+                    <span class="material-icons">home</span>
+                    ホーム
+                </button>
+                <button class="tab-item" onclick="showScreen('rank-01')">
+                    <span class="material-icons">emoji_events</span>
+                    ランキング
+                </button>
+                <button class="tab-item" onclick="showScreen('comm-01')">
+                    <span class="material-icons">forum</span>
+                    コミュニティ
+                </button>
+                <button class="tab-item active" onclick="showScreen('prof-01')">
+                    <span class="material-icons">person</span>
+                    プロフィール
+                </button>
+            </div>
+        </div>
+
+        <!-- PROF-02: プロフィール編集画面 -->
+        <div id="prof-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('prof-01')">← 戻る</button>
+                <h1>プロフィール編集</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="text-center mb-20">
+                    <div class="avatar avatar-large" style="margin: 0 auto 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">あ</div>
+                    <p class="text-small" style="color: #6b7280;">
+                        <span class="material-icons" style="vertical-align: middle; font-size: 16px;">info</span>
+                        アイコンはニックネームの最初の1文字が表示されます
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ニックネーム</label>
+                    <input type="text" class="form-input" value="あなた" placeholder="ニックネームを入力">
+                    <p class="text-small" style="color: #6b7280; margin-top: 4px;">※ 最初の1文字がアイコンに表示されます</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">自己紹介（最大200文字）</label>
+                    <textarea class="form-input" rows="5" placeholder="自己紹介を入力">学習を習慣化して人生を変える！</textarea>
+                </div>
+
+                <button class="btn mb-16" onclick="showScreen('prof-01')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">save</span>
+                    保存
+                </button>
+                <button class="btn btn-secondary" onclick="showScreen('prof-01')">キャンセル</button>
+            </div>
+        </div>
+
+        <!-- SETT-01: 設定画面 -->
+        <div id="sett-01" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('prof-01')">← 戻る</button>
+                <h1>設定</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-title">サポート</div>
+                    <div class="setting-item">
+                        <a class="link">お問い合わせ</a>
+                    </div>
+                    <div class="setting-item">
+                        <a class="link" onclick="showScreen('static-01')">利用規約</a>
+                    </div>
+                    <div class="setting-item">
+                        <a class="link" onclick="showScreen('static-02')">プライバシーポリシー</a>
+                    </div>
+                </div>
+
+                <button class="btn btn-danger mt-20" onclick="if(confirm('本当に退会しますか？この操作は取り消せません。すべてのデータが削除されます。')) { alert('退会処理を行いました'); showScreen('auth-01'); }">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">logout</span>
+                    退会
+                </button>
+            </div>
+        </div>
+
+        <!-- SUBS-01: サブスクリプション画面 -->
+        <div id="subs-01" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('prof-01')">← 戻る</button>
+                <h1>サブスクリプション</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <!-- 現在のプラン -->
+                <div class="card">
+                    <div class="card-title">現在のプラン</div>
+                    <div class="flex-between">
+                        <span style="font-size: 24px; font-weight: 700;">Free</span>
+                        <span class="badge badge-free">無料プラン</span>
+                    </div>
+                </div>
+
+                <!-- プラン比較表 -->
+                <h2 style="font-size: 18px; font-weight: 600; margin: 24px 0 16px;">プラン比較</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>機能</th>
+                            <th>Free</th>
+                            <th>Pro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>基本的な学習記録</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>プロジェクト数</td>
+                            <td>1つ</td>
+                            <td>無制限</td>
+                        </tr>
+                        <tr>
+                            <td>ランキング閲覧</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>詳細グラフ</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- FAQ -->
+                <h2 style="font-size: 18px; font-weight: 600; margin: 24px 0 16px;">よくある質問</h2>
+                <div class="card">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Q. いつでも解約できますか？</div>
+                    <div class="text-small">A. はい、いつでも解約可能です。解約後も課金期間終了まで利用できます。</div>
+                </div>
+
+                <div class="card">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Q. トライアル期間はありますか？</div>
+                    <div class="text-small">A. はい、1ヶ月間の無料トライアルをご利用いただけます。</div>
+                </div>
+
+                <button class="btn mb-16" onclick="showScreen('subs-02')">トライアルを開始（1ヶ月無料）</button>
+                <button class="btn btn-secondary">Proにアップグレード（月額 ¥980）</button>
+            </div>
+        </div>
+
+        <!-- SUBS-02: トライアル開始確認画面 -->
+        <div id="subs-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('subs-01')">← 戻る</button>
+                <h1>トライアル開始</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content content-centered">
+                <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">1ヶ月間無料</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    Proの全機能が1ヶ月間無料でご利用いただけます。<br><br>
+                    トライアル終了後は自動的に月額課金が開始されます。<br><br>
+                    いつでもキャンセル可能です。
+                </p>
+
+                <div style="width: 100%;">
+                    <button class="btn mb-16" onclick="alert('Stripe決済画面へ遷移します'); showScreen('home-01')">トライアルを開始</button>
+                    <button class="btn btn-secondary" onclick="showScreen('home-01')">後で</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ERR-01: アカウント停止画面 -->
+        <div id="err-01" class="screen">
+            <div class="content content-centered">
+                <div style="font-size: 64px; margin-bottom: 20px;">
+                    <span class="material-icons" style="font-size: 64px; color: #dc2626;">block</span>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">アカウントが停止されています</h2>
+                <p class="text-small mb-20" style="line-height: 1.8; color: #6b7280;">
+                    お客様のアカウントは利用規約違反のため停止されました。
+                </p>
+
+                <div style="width: 100%;">
+                    <button class="btn" onclick="showScreen('auth-01')">
+                        <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">logout</span>
+                        ログアウト
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN-01: 管理者ダッシュボード -->
+        <div id="admin-01" class="screen">
+            <div class="header">
+                <h1>管理者ダッシュボード</h1>
+                <button class="btn-small" onclick="showScreen('home-01')">一般画面へ</button>
+            </div>
+
+            <div class="content">
+                <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">管理メニュー</h2>
+
+                <div class="card" style="cursor: pointer;" onclick="showScreen('admin-02')">
+                    <div class="flex-between">
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">👥 ユーザー管理</div>
+                            <div class="text-small">ユーザーの検索・停止・解除</div>
+                        </div>
+                        <div style="font-size: 24px;">→</div>
+                    </div>
+                </div>
+
+                <div class="card" style="cursor: pointer;" onclick="showScreen('admin-03')">
+                    <div class="flex-between">
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">🚨 通報管理</div>
+                            <div class="text-small">通報の確認と対応</div>
+                        </div>
+                        <div style="font-size: 24px;">→</div>
+                    </div>
+                </div>
+
+                <div class="card" style="cursor: pointer;" onclick="showScreen('admin-04')">
+                    <div class="flex-between">
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">📢 広告管理</div>
+                            <div class="text-small">広告・お知らせの作成・編集</div>
+                        </div>
+                        <div style="font-size: 24px;">→</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN-02: ユーザー管理画面 -->
+        <div id="admin-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('admin-01')">← 戻る</button>
+                <h1>ユーザー管理</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <!-- 検索バー -->
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="🔍 ニックネームまたはメールアドレスで検索">
+                </div>
+
+                <!-- 絞り込みフィルター -->
+                <div class="flex-between mb-20">
+                    <select class="form-input" style="width: 48%;">
+                        <option>全てのプラン</option>
+                        <option>Free</option>
+                        <option>Trial</option>
+                        <option>Pro</option>
+                    </select>
+                    <select class="form-input" style="width: 48%;">
+                        <option>全ての状態</option>
+                        <option>正常</option>
+                        <option>停止中</option>
+                    </select>
+                </div>
+
+                <!-- ユーザー一覧 -->
+                <div style="overflow-x: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ユーザー</th>
+                                <th>プラン</th>
+                                <th>登録日</th>
+                                <th style="text-align: center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">山田太郎</div>
+                                    <div class="text-small">yamada@example.com</div>
+                                </td>
+                                <td><span class="badge badge-pro">Pro</span></td>
+                                <td class="text-small">2025-01-15</td>
+                                <td style="text-align: center;">
+                                    <div class="action-menu">
+                                        <button class="action-menu-btn" onclick="toggleActionMenu(event)">
+                                            <span class="material-icons">more_vert</span>
+                                        </button>
+                                        <div class="action-menu-content">
+                                            <button class="action-menu-item" onclick="alert('詳細を表示')">
+                                                <span class="material-icons">visibility</span>
+                                                詳細
+                                            </button>
+                                            <button class="action-menu-item danger" onclick="if(confirm('このユーザーを停止しますか？')) alert('停止しました')">
+                                                <span class="material-icons">block</span>
+                                                停止
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">佐藤花子</div>
+                                    <div class="text-small">sato@example.com</div>
+                                </td>
+                                <td><span class="badge badge-trial">Trial</span></td>
+                                <td class="text-small">2025-02-01</td>
+                                <td style="text-align: center;">
+                                    <div class="action-menu">
+                                        <button class="action-menu-btn" onclick="toggleActionMenu(event)">
+                                            <span class="material-icons">more_vert</span>
+                                        </button>
+                                        <div class="action-menu-content">
+                                            <button class="action-menu-item" onclick="alert('詳細を表示')">
+                                                <span class="material-icons">visibility</span>
+                                                詳細
+                                            </button>
+                                            <button class="action-menu-item danger" onclick="if(confirm('このユーザーを停止しますか？')) alert('停止しました')">
+                                                <span class="material-icons">block</span>
+                                                停止
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">鈴木一郎</div>
+                                    <div class="text-small">suzuki@example.com</div>
+                                </td>
+                                <td><span class="badge badge-free">Free</span></td>
+                                <td class="text-small">2025-02-10</td>
+                                <td style="text-align: center;">
+                                    <div class="action-menu">
+                                        <button class="action-menu-btn" onclick="toggleActionMenu(event)">
+                                            <span class="material-icons">more_vert</span>
+                                        </button>
+                                        <div class="action-menu-content">
+                                            <button class="action-menu-item" onclick="alert('詳細を表示')">
+                                                <span class="material-icons">visibility</span>
+                                                詳細
+                                            </button>
+                                            <button class="action-menu-item danger" onclick="if(confirm('このユーザーを停止しますか？')) alert('停止しました')">
+                                                <span class="material-icons">block</span>
+                                                停止
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN-03: 通報管理画面 -->
+        <div id="admin-03" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('admin-01')">← 戻る</button>
+                <h1>通報管理</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <!-- ステータスフィルター -->
+                <div class="ranking-tabs mb-20">
+                    <button class="ranking-tab active">未対応</button>
+                    <button class="ranking-tab">対応済み</button>
+                </div>
+
+                <!-- 通報一覧 -->
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span class="text-small" style="color: #6b7280;">通報者:</span>
+                                <span style="font-weight: 600;">佐藤花子</span>
+                                <span class="material-icons" style="font-size: 16px; color: #9ca3af;">arrow_forward</span>
+                                <span class="text-small" style="color: #6b7280;">被通報者:</span>
+                                <span style="font-weight: 600; color: #dc2626;">山田太郎</span>
+                            </div>
+                            <div style="padding: 10px 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #fca5a5;">
+                                <div class="text-small" style="color: #374151;">今日も朝5時に起きて勉強できました！継続は力なり💪</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-pending" style="margin-left: 12px;">未対応</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="action-btn danger" onclick="if(confirm('このメッセージを削除して対応済みにしますか？')) alert('メッセージを削除しました')">
+                            <span class="material-icons">delete</span>
+                            メッセージ削除
+                        </button>
+                        <button class="action-btn danger" onclick="if(confirm('このユーザーを停止して対応済みにしますか？')) alert('ユーザーを停止しました')">
+                            <span class="material-icons">block</span>
+                            アカウント停止
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span class="text-small" style="color: #6b7280;">通報者:</span>
+                                <span style="font-weight: 600;">鈴木一郎</span>
+                                <span class="material-icons" style="font-size: 16px; color: #9ca3af;">arrow_forward</span>
+                                <span class="text-small" style="color: #6b7280;">被通報者:</span>
+                                <span style="font-weight: 600; color: #dc2626;">田中次郎</span>
+                            </div>
+                            <div style="padding: 10px 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #93c5fd;">
+                                <div class="text-small" style="color: #374151;">スパム的な内容</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-resolved" style="margin-left: 12px;">対応済み</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span class="text-small" style="color: #6b7280;">通報者:</span>
+                                <span style="font-weight: 600;">高橋美咲</span>
+                                <span class="material-icons" style="font-size: 16px; color: #9ca3af;">arrow_forward</span>
+                                <span class="text-small" style="color: #6b7280;">被通報者:</span>
+                                <span style="font-weight: 600; color: #dc2626;">中村健太</span>
+                            </div>
+                            <div style="padding: 10px 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #fca5a5;">
+                                <div class="text-small" style="color: #374151;">誹謗中傷のような内容が含まれています</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-pending" style="margin-left: 12px;">未対応</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="action-btn danger" onclick="if(confirm('このメッセージを削除して対応済みにしますか？')) alert('メッセージを削除しました')">
+                            <span class="material-icons">delete</span>
+                            メッセージ削除
+                        </button>
+                        <button class="action-btn danger" onclick="if(confirm('このユーザーを停止して対応済みにしますか？')) alert('ユーザーを停止しました')">
+                            <span class="material-icons">block</span>
+                            アカウント停止
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN-04: 広告管理画面 -->
+        <div id="admin-04" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('admin-01')">← 戻る</button>
+                <h1>広告管理</h1>
+                <button class="action-btn primary" onclick="showScreen('admin-05')">
+                    <span class="material-icons">add</span>
+                    新規作成
+                </button>
+            </div>
+
+            <div class="content">
+                <!-- 広告一覧 -->
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 4px;">🎉 新機能リリース</div>
+                            <div class="text-small">表示順: 1</div>
+                        </div>
+                        <span class="badge" style="background: #d1fae5; color: #065f46;">有効</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="showScreen('admin-05')">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="action-btn danger" onclick="if(confirm('この広告を削除しますか？')) alert('削除しました')">
+                            <span class="material-icons">delete</span>
+                            削除
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 4px;">📚 おすすめ教材</div>
+                            <div class="text-small">表示順: 2</div>
+                        </div>
+                        <span class="badge" style="background: #d1fae5; color: #065f46;">有効</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="showScreen('admin-05')">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="action-btn danger" onclick="if(confirm('この広告を削除しますか？')) alert('削除しました')">
+                            <span class="material-icons">delete</span>
+                            削除
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between mb-12">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 4px;">🎁 キャンペーン情報</div>
+                            <div class="text-small">表示順: 3</div>
+                        </div>
+                        <span class="badge" style="background: #fee2e2; color: #991b1b;">無効</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" onclick="showScreen('admin-05')">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="action-btn danger" onclick="if(confirm('この広告を削除しますか？')) alert('削除しました')">
+                            <span class="material-icons">delete</span>
+                            削除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN-05: 広告作成/編集画面 -->
+        <div id="admin-05" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showScreen('admin-04')">← 戻る</button>
+                <h1>広告作成</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <div class="form-group">
+                    <label class="form-label">タイトル（管理用）</label>
+                    <input type="text" class="form-input" placeholder="新機能リリース">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">画像（最大2MB）</label>
+                    <input type="file" class="form-input" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">リンクURL（オプション）</label>
+                    <input type="url" class="form-input" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">表示順</label>
+                    <input type="number" class="form-input" value="1">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="active" checked>
+                        <label for="active">有効にする</label>
+                    </div>
+                </div>
+
+                <!-- プレビュー -->
+                <div class="card">
+                    <div class="card-title">プレビュー</div>
+                    <div class="banner-area">
+                        <strong>📢 新機能リリース</strong><br>
+                        年間ランキング開始！
+                    </div>
+                </div>
+
+                <button class="btn mb-16" onclick="showScreen('admin-04')">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 4px;">save</span>
+                    保存
+                </button>
+                <button class="btn btn-secondary" onclick="showScreen('admin-04')">キャンセル</button>
+            </div>
+        </div>
+
+        <!-- STATIC-01: 利用規約ページ -->
+        <div id="static-01" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="history.back()">← 戻る</button>
+                <h1>利用規約</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">第1条（適用）</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    本規約は、本サービスの提供条件及び本サービスの利用に関する当社と登録ユーザーとの間の権利義務関係を定めることを目的とし、登録ユーザーと当社との間の本サービスの利用に関わる一切の関係に適用されます。
+                </p>
+
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">第2条（定義）</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    本規約において使用する以下の用語は、各々以下に定める意味を有するものとします。<br><br>
+                    (1) 「サービス利用契約」とは、本規約を契約条件として当社と登録ユーザーの間で締結される、本サービスの利用契約を意味します。<br>
+                    (2) 「登録ユーザー」とは、本規約に基づいて本サービスの利用者としての登録がなされた個人または法人を意味します。
+                </p>
+
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">第3条（登録）</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    本サービスの利用を希望する者は、本規約を遵守することに同意し、かつ当社の定める一定の情報を当社の定める方法で当社に提供することにより、当社に対し、本サービスの利用の登録を申請することができます。
+                </p>
+
+                <div class="text-center mt-20">
+                    <p class="text-small">2025年11月5日 制定</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATIC-02: プライバシーポリシーページ -->
+        <div id="static-02" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="history.back()">← 戻る</button>
+                <h1>プライバシーポリシー</h1>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="content">
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">個人情報の取り扱いについて</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    当社は、本サービスにおいて取得した個人情報を、以下の目的のために利用します。
+                </p>
+
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">1. 収集する情報</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    当社は、本サービスの提供にあたり、以下の情報を収集します。<br><br>
+                    • メールアドレス<br>
+                    • ニックネーム<br>
+                    • 学習記録データ<br>
+                    • 利用状況に関する情報
+                </p>
+
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">2. 利用目的</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    収集した個人情報は、以下の目的で利用します。<br><br>
+                    • 本サービスの提供・運営のため<br>
+                    • ユーザーからのお問い合わせに対応するため<br>
+                    • サービスの改善・新サービスの開発のため
+                </p>
+
+                <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">3. 第三者提供</h2>
+                <p class="text-small mb-20" style="line-height: 1.8;">
+                    当社は、以下の場合を除き、個人情報を第三者に提供しません。<br><br>
+                    • ユーザーの同意がある場合<br>
+                    • 法令に基づく場合
+                </p>
+
+                <div class="text-center mt-20">
+                    <p class="text-small">2025年11月5日 制定</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 画面切り替え
+        function showScreen(screenId) {
+            // 全ての画面を非表示
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // 指定された画面を表示
+            document.getElementById(screenId).classList.add('active');
+            
+            // ナビゲーションボタンの状態を更新
+            document.querySelectorAll('.screen-nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // ページトップにスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // タイマー機能（デモ用）
+        let timerInterval = null;
+        let seconds = 0;
+        
+        function toggleTimer(button) {
+            if (button.textContent === '学習を開始') {
+                button.textContent = '学習を終了';
+                button.classList.add('btn-danger');
+                startTimer();
+            } else {
+                button.textContent = '学習を開始';
+                button.classList.remove('btn-danger');
+                stopTimer();
+                // ページ数入力ダイアログを表示
+                const pages = prompt('学習したページ数を入力してください');
+                if (pages) {
+                    alert(`${pages}ページ記録しました！ポイントが加算されました。`);
+                }
+            }
+        }
+        
+        function startTimer() {
+            seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            const display = document.querySelector('.timer-display');
+            if (display) {
+                display.textContent = 
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(secs).padStart(2, '0');
+            }
+        }
+
+        // トグルスイッチ
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('toggle')) {
+                e.target.classList.toggle('active');
+            }
+        });
+
+        // 曜日ボタン
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('weekday-btn')) {
+                e.target.classList.toggle('active');
+            }
+        });
+
+        // メッセージ送信機能
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message === '') {
+                alert('メッセージを入力してください');
+                return;
+            }
+            
+            if (message.length > 400) {
+                alert('メッセージは400文字以内で入力してください');
+                return;
+            }
+            
+            alert('メッセージを送信しました: ' + message);
+            input.value = '';
+        }
+
+        // アクションメニューの開閉
+        function toggleActionMenu(event) {
+            event.stopPropagation();
+            const menu = event.target.closest('.action-menu');
+            const allMenus = document.querySelectorAll('.action-menu');
+            
+            // 他のメニューを閉じる
+            allMenus.forEach(m => {
+                if (m !== menu) {
+                    m.classList.remove('active');
+                }
+            });
+            
+            // 現在のメニューを開閉
+            menu.classList.toggle('active');
+        }
+
+        // メニュー外をクリックしたら閉じる
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.action-menu')) {
+                document.querySelectorAll('.action-menu').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+            }
+        });
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 最初の画面を表示
+            showScreen('auth-01');
+            
+            // Enter キーでメッセージ送信
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

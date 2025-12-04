@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "OLP求人オートメーション",
+  "version": "1.0.0",
+  "description": "AIで生成した求人原稿を各媒体のフォームに自動入力",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://jp.indeed.com/*",
+    "https://employer.indeed.com/*",
+    "https://*.indeed.com/*",
+    "https://xn--pckua2a7gp15o89zb.com/*",
+    "https://kyujinbox.com/*",
+    "https://en-gage.net/*",
+    "https://*.en-gage.net/*",
+    "http://localhost:3000/*",
+    "https://*.vercel.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://jp.indeed.com/*",
+        "https://employer.indeed.com/*",
+        "https://*.indeed.com/*"
+      ],
+      "js": ["content-indeed.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://xn--pckua2a7gp15o89zb.com/*",
+        "https://kyujinbox.com/*"
+      ],
+      "js": ["content-kyujinbox.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://en-gage.net/*",
+        "https://*.en-gage.net/*"
+      ],
+      "js": ["content-engage.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://*.vercel.app/*"
+      ],
+      "js": ["content-webapp.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

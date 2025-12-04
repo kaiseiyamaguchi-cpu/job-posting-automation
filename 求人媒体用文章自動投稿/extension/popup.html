@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLP求人オートメーション</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 360px;
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #fff;
+    }
+    
+    .header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .header-text h1 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .header-text p {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    
+    .content {
+      padding: 16px;
+    }
+    
+    .status-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .status-title {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+    
+    .status-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .status-value.has-data {
+      color: #4ade80;
+    }
+    
+    .status-value.no-data {
+      color: #f87171;
+    }
+    
+    .media-section {
+      margin-bottom: 12px;
+    }
+    
+    .media-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+    
+    .media-title {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    
+    .button-primary {
+      background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+      color: white;
+    }
+    
+    .button-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    
+    .button-primary:disabled {
+      background: #475569;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .button-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      margin-top: 8px;
+    }
+    
+    .button-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .info-box {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 16px;
+    }
+    
+    .info-box p {
+      font-size: 11px;
+      color: #c4b5fd;
+      line-height: 1.5;
+    }
+    
+    .detected-site {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 6px;
+      font-size: 12px;
+      color: #4ade80;
+      margin-top: 8px;
+    }
+    
+    .no-site {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: rgba(248, 113, 113, 0.2);
+      color: #f87171;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🚀</div>
+    <div class="header-text">
+      <h1>OLP求人オートメーション</h1>
+      <p>求人原稿の自動入力ツール</p>
+    </div>
+  </div>
+  
+  <div class="content">
+    <div class="status-card">
+      <div class="status-title">📄 保存されている原稿データ</div>
+      <div id="dataStatus" class="status-value no-data">データなし</div>
+      
+      <div id="dataPreview" style="display: none; margin-top: 12px;">
+        <div class="media-section">
+          <div class="media-label">🔵 Indeed</div>
+          <div id="indeedTitle" class="media-title">-</div>
+        </div>
+        <div class="media-section">
+          <div class="media-label">📦 求人ボックス</div>
+          <div id="kyujinboxTitle" class="media-title">-</div>
+        </div>
+        <div class="media-section">
+          <div class="media-label">💚 エンゲージ</div>
+          <div id="engageTitle" class="media-title">-</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-card">
+      <div class="status-title">🌐 現在のページ</div>
+      <div id="currentSite" class="detected-site no-site">
+        検出中...
+      </div>
+    </div>
+    
+    <button id="fillButton" class="button button-primary" disabled>
+      <span>📝</span>
+      <span>フォームに自動入力</span>
+    </button>
+    
+    <button id="openAppButton" class="button button-secondary">
+      <span>🔗</span>
+      <span>原稿生成アプリを開く</span>
+    </button>
+    
+    <div class="info-box">
+      <p>💡 Webアプリで原稿を生成すると、このボタンで各媒体のフォームに自動入力できます。</p>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
+
