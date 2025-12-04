@@ -42,6 +42,12 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  // 公開ページ（トップページ）は認証不要
+  const publicPaths = ['/', '/about', '/contact']
+  if (publicPaths.includes(request.nextUrl.pathname)) {
+    return supabaseResponse
+  }
+
   // 認証済みユーザーが /login や /register にアクセスした場合は /dashboard にリダイレクト
   if (
     user &&
