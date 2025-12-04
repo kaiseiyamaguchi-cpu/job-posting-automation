@@ -61,8 +61,13 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       console.error("プロフィール作成エラー:", profileError);
-      // ユーザーは作成されているが、プロフィールの作成に失敗
-      // 次回ログイン時に作成するようにする
+      return NextResponse.json(
+        { 
+          error: "ユーザープロフィールの作成に失敗しました。データベースの設定を確認してください。",
+          details: profileError.message 
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
