@@ -42,12 +42,23 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  // 認証済みユーザーが /login や /register にアクセスした場合は /dashboard にリダイレクト
+  if (
+    user &&
+    (request.nextUrl.pathname.startsWith('/login') ||
+      request.nextUrl.pathname.startsWith('/register'))
+  ) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // 未認証ユーザーが保護されたページにアクセスした場合は /login にリダイレクト
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/register')
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
