@@ -1,0 +1,9 @@
+# Secrets / local notes
+PW
+PW.*
+
+# macOS
+.DS_Store
+
+# accidental nested paths
+Desktop/

@@ -36,7 +36,9 @@
 2. 以下の情報をメモ：
    - **Project URL**: `https://xxxxx.supabase.co`
    - **anon public**: `eyJhbGciOiJI...`（長い文字列）
-   - **service_role**: `eyJhbGciOiJI...`（長い文字列）
+   - （参考）**service_role**: `eyJhbGciOiJI...`（長い文字列）
+     - 本アプリ（デモ/通常運用）は **`anon key` のみ**で動作します
+     - `service_role` は **絶対にGitへコミットしない**（漏洩時の影響が大きい）
 
 ## 🗄️ ステップ2: データベースのセットアップ
 
@@ -73,7 +75,6 @@
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJI...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJI...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 

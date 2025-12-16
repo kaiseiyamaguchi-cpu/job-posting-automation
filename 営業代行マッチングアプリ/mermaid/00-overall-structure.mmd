@@ -1,0 +1,102 @@
+flowchart LR
+  %% ===============
+  %% 全体図（契約/当事者 + アプリ利用フロー + 金流）
+  %% 目的：1枚で全体構造が追える
+  %% ===============
+
+  %% --- Actors ---
+  C[企業]:::actor
+  O[鬼カナ（取引主体 / MoR）]:::actor
+  A[営業顧問（営業代行/外注先）]:::actor
+
+  classDef actor fill:#f6f6f6,stroke:#333,stroke-width:1px;
+  classDef step fill:#e8f0ff,stroke:#2b5fd9,stroke-width:1px;
+  classDef decision fill:#fff3cd,stroke:#b08900,stroke-width:1px;
+  classDef outcome fill:#e9f7ef,stroke:#1e7e34,stroke-width:1px;
+  classDef risk fill:#fdecea,stroke:#b71c1c,stroke-width:1px;
+
+  %% --- Contract structure ---
+  subgraph S1[① 契約/当事者構造（B案：取引主体化）]
+    direction LR
+    C -->|契約A: 役務提供契約| O
+    O -->|役務提供（案件募集/スカウト/チャット/日程調整/裁定等）| C
+
+    O -->|契約B: 業務委託契約| A
+    A -->|アポ獲得/営業活動の提供| O
+  end
+
+  %% --- App flow ---
+  subgraph S2[② アプリ利用フロー（案件募集⇄応募 / スカウト⇄承諾）]
+    direction LR
+
+    REG[登録（企業/顧問）]:::step
+
+    ENTRY{マッチングの入口}:::decision
+
+    JP[企業：案件募集作成\n(ほしいアポ像/単価感/条件)]:::step
+    AS[顧問：案件検索]:::step
+    AP[顧問：応募]:::step
+
+    SC[企業：顧問検索→スカウト]:::step
+    AC[顧問：承諾/辞退]:::step
+
+    MATCH[双方合意（マッチング成立）]:::outcome
+    CHAT[チャット（要件すり合わせ）]:::step
+    SCHED[日程調整（候補→確定）]:::step
+
+    PAY_IN[企業→鬼カナ 支払い\n(振込/カード)]:::step
+    MEET[商談実施]:::step
+
+    WAIT[48h 異議申立期間]:::decision
+    OK[成立確定（検収）]:::outcome
+    DISPUTE[異議申立→裁定]:::risk
+    REFUND[企業へ返金]:::risk
+
+    REG --> ENTRY
+
+    ENTRY -->|案件募集→応募| JP
+    JP --> AS --> AP --> MATCH
+
+    ENTRY -->|スカウト→承諾| SC --> AC
+    AC -->|承諾| MATCH
+    AC -->|辞退| ENTRY
+
+    MATCH --> CHAT --> SCHED --> PAY_IN --> MEET --> WAIT
+
+    WAIT -->|異議なし| OK
+    WAIT -->|異議あり| DISPUTE
+    DISPUTE -->|無効| REFUND
+    DISPUTE -->|有効| OK
+  end
+
+  %% --- Money flow (overlay) ---
+  subgraph S3[③ お金の流れ（80/20・返金・精算）]
+    direction LR
+    M1[企業が支払う金額\n= 役務対価（例: 3〜5万円）]:::step
+    M2[鬼カナ売上（20%相当）]:::outcome
+    M3[顧問委託費（80%相当）]:::outcome
+    M4[返金（無効時）]:::risk
+    M5[顧問側：相殺/返還/不支給\n（契約Bに基づく）]:::risk
+
+    M1 --> M2
+    M1 --> M3
+    M4 --> M5
+  end
+
+  %% connect actors to key steps
+  C -.-> REG
+  A -.-> REG
+
+  C -.-> JP
+  C -.-> SC
+  A -.-> AS
+
+  C -.-> PAY_IN
+
+  %% money arrows (actual transfers)
+  C ==>|支払い（役務対価）| O
+  O ==>|委託費支払い（外注費）| A
+
+  %% refund path
+  REFUND -.->|返金処理| C
+  REFUND -.->|（必要に応じ）精算| A
