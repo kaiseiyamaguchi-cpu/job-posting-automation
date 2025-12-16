@@ -34,6 +34,20 @@ export async function PUT(
       );
     }
 
+    // 自分のagency_profileを取得
+    const { data: agencyProfile } = await supabase
+      .from("agency_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!agencyProfile) {
+      return NextResponse.json(
+        { error: "営業代行プロフィールが見つかりません" },
+        { status: 404 }
+      );
+    }
+
     // リクエストボディ取得
     const body = await request.json();
     const { status, rejected_reason } = body;
@@ -53,12 +67,12 @@ export async function PUT(
       );
     }
 
-    // 申請が自分宛か確認
+    // 申請が自分宛か確認（agency_profiles.idで検索）
     const { data: matchingRequest } = await supabase
       .from("matching_requests")
       .select("*")
       .eq("id", id)
-      .eq("agency_id", user.id)
+      .eq("agency_id", agencyProfile.id)
       .single();
 
     if (!matchingRequest) {
@@ -69,7 +83,7 @@ export async function PUT(
     }
 
     // ステータス更新
-    const updateData: any = {
+    const updateData: { status: string; updated_at: string; rejected_reason?: string } = {
       status,
       updated_at: new Date().toISOString(),
     };
@@ -93,21 +107,40 @@ export async function PUT(
       );
     }
 
-    // 承認の場合、メッセージスレッドが自動作成される（トリガーによる）
+    // 承認の場合、メッセージスレッドを作成
     let threadCreated = false;
     if (status === "approved") {
-      // スレッド作成を少し待つ（トリガー実行待ち）
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // スレッドが作成されたか確認
-      const { data: thread } = await supabase
-        .from("message_threads")
-        .select("id")
-        .eq("company_id", matchingRequest.company_id)
-        .eq("agency_id", matchingRequest.agency_id)
+      // company_idとagency_idからuser_idを取得
+      const { data: companyProfile } = await supabase
+        .from("company_profiles")
+        .select("user_id")
+        .eq("id", matchingRequest.company_id)
         .single();
 
-      threadCreated = !!thread;
+      const { data: agencyProfile } = await supabase
+        .from("agency_profiles")
+        .select("user_id")
+        .eq("id", matchingRequest.agency_id)
+        .single();
+
+      if (companyProfile && agencyProfile) {
+        // スレッド作成
+        const { data: thread, error: threadError } = await supabase
+          .from("message_threads")
+          .insert({
+            matching_request_id: id,
+            company_id: companyProfile.user_id,
+            agency_id: agencyProfile.user_id,
+          })
+          .select()
+          .single();
+
+        if (!threadError && thread) {
+          threadCreated = true;
+        } else {
+          console.error("スレッド作成エラー:", threadError);
+        }
+      }
     }
 
     return NextResponse.json({

@@ -32,21 +32,37 @@ export async function GET() {
 
     // 企業向け統計
     if (profile.role === "company") {
-      // 申請中の件数
+      // 自分のcompany_profileを取得
+      const { data: companyProfile } = await supabase
+        .from("company_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!companyProfile) {
+        return NextResponse.json({
+          pending_requests: 0,
+          approved_requests: 0,
+          active_threads: 0,
+          unread_messages: 0,
+        });
+      }
+
+      // 申請中の件数（company_profiles.idで検索）
       const { count: pendingCount } = await supabase
         .from("matching_requests")
         .select("*", { count: "exact", head: true })
-        .eq("company_id", user.id)
+        .eq("company_id", companyProfile.id)
         .eq("status", "pending");
 
       // 承認済みの件数
       const { count: approvedCount } = await supabase
         .from("matching_requests")
         .select("*", { count: "exact", head: true })
-        .eq("company_id", user.id)
+        .eq("company_id", companyProfile.id)
         .eq("status", "approved");
 
-      // アクティブスレッド数
+      // アクティブスレッド数（message_threads.company_idはusers.idを参照）
       const { count: activeThreadsCount } = await supabase
         .from("message_threads")
         .select("*", { count: "exact", head: true })
@@ -73,21 +89,37 @@ export async function GET() {
 
     // 営業代行向け統計
     if (profile.role === "agency") {
-      // 新着申請数
+      // 自分のagency_profileを取得
+      const { data: agencyProfile } = await supabase
+        .from("agency_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!agencyProfile) {
+        return NextResponse.json({
+          new_requests: 0,
+          active_companies: 0,
+          active_threads: 0,
+          unread_messages: 0,
+        });
+      }
+
+      // 新着申請数（agency_profiles.idで検索）
       const { count: newRequestsCount } = await supabase
         .from("matching_requests")
         .select("*", { count: "exact", head: true })
-        .eq("agency_id", user.id)
+        .eq("agency_id", agencyProfile.id)
         .eq("status", "pending");
 
       // 対応中企業数（承認済みの申請数）
       const { count: activeCompaniesCount } = await supabase
         .from("matching_requests")
         .select("*", { count: "exact", head: true })
-        .eq("agency_id", user.id)
+        .eq("agency_id", agencyProfile.id)
         .eq("status", "approved");
 
-      // アクティブスレッド数
+      // アクティブスレッド数（message_threads.agency_idはusers.idを参照）
       const { count: activeThreadsCount } = await supabase
         .from("message_threads")
         .select("*", { count: "exact", head: true })

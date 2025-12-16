@@ -117,8 +117,14 @@ export default function MessagesPage() {
   };
 
   const getPartnerName = (thread: MessageThread) => {
-    // TODO: 実際のデータから相手の名前を取得
-    return userRole === "company" ? "営業代行" : "企業";
+    if (userRole === "company") {
+      // 企業ユーザーの場合、営業代行の名前を表示
+      return thread.agency_profile?.name || "営業代行";
+    } else if (userRole === "agency") {
+      // 営業代行ユーザーの場合、企業の名前を表示
+      return thread.company_profile?.company_name || "企業";
+    }
+    return "相手";
   };
 
   const formatTime = (dateString: string) => {

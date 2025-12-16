@@ -1,6 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
 export default async function Layout({
   children,
@@ -9,22 +8,18 @@ export default async function Layout({
 }) {
   const supabase = await createClient();
   
-  // 認証チェック
+  // middlewareで既に認証済み、ここではユーザー情報を取得するだけ
   const { data: { user } } = await supabase.auth.getUser();
   
-  if (!user) {
-    redirect("/login");
-  }
-
   // ユーザー情報取得
   const { data: profile } = await supabase
     .from("users")
     .select("*")
-    .eq("id", user.id)
+    .eq("id", user?.id)
     .single();
 
   if (!profile) {
-    redirect("/login");
+    return <div>ユーザー情報を取得できませんでした</div>
   }
 
   const userData = {

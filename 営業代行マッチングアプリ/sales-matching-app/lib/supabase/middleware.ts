@@ -37,22 +37,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname;
+
   // 認証APIルートは認証チェックをスキップ
-  if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+  if (pathname.startsWith('/api/auth/')) {
     return supabaseResponse
   }
 
   // 公開ページ（トップページ）は認証不要
   const publicPaths = ['/', '/about', '/contact']
-  if (publicPaths.includes(request.nextUrl.pathname)) {
+  if (publicPaths.includes(pathname)) {
     return supabaseResponse
   }
 
   // 認証済みユーザーが /login や /register にアクセスした場合は /dashboard にリダイレクト
   if (
     user &&
-    (request.nextUrl.pathname.startsWith('/login') ||
-      request.nextUrl.pathname.startsWith('/register'))
+    (pathname.startsWith('/login') ||
+      pathname.startsWith('/register'))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
@@ -62,8 +64,8 @@ export async function updateSession(request: NextRequest) {
   // 未認証ユーザーが保護されたページにアクセスした場合は /login にリダイレクト
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/register')
+    !pathname.startsWith('/login') &&
+    !pathname.startsWith('/register')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'

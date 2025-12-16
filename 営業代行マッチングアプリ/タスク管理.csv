@@ -36,21 +36,21 @@ Phase 2-B,2B.4,申請一覧画面（営業代行側）,担当者B,30分,2B.3,✅
 Phase 2-B,2B.5,承認/却下機能実装,担当者B,45分,2B.4,✅完了,ApprovalButtonsコンポーネント
 Phase 2-B,2B.6,スレッド自動作成確認,担当者A,15分,2B.5,✅完了,createMessageThreadOnApproval実装済み
 Phase 2-C,2C.1,メッセージ関連API実装,担当者A,1.5時間,1A.6,✅完了,lib/actions/message.ts作成（スレッド取得・メッセージ送信・既読管理実装済み）
-Phase 2-C,2C.2,Realtime購読設定,担当者C,1時間,2C.1,未着手,useRealtimeMessagesフック（担当者Cへ）
-Phase 2-C,2C.3,スレッド一覧コンポーネント,担当者B/C,45分,1B.4,未着手,ThreadListコンポーネント（担当者B/Cへ）
-Phase 2-C,2C.4,チャット画面コンポーネント,担当者B/C,1.5時間,1B.4,未着手,ChatWindow/MessageBubble/Input（担当者B/Cへ）
-Phase 2-C,2C.5,メッセージページ実装,担当者C,45分,2C.3,未着手,messages/page.tsx（担当者Cへ）
+Phase 2-C,2C.2,Realtime購読設定,担当者C,1時間,2C.1,✅完了,useRealtimeMessagesフック統合済み
+Phase 2-C,2C.3,スレッド一覧コンポーネント,担当者C,45分,1B.4,✅完了,messages/page.tsxに統合済み
+Phase 2-C,2C.4,チャット画面コンポーネント,担当者C,1.5時間,1B.4,✅完了,messages/page.tsxに統合済み
+Phase 2-C,2C.5,メッセージページ実装,担当者C,45分,2C.3,✅完了,messages/page.tsx
 Phase 2-C,2C.6,未読管理機能,担当者A,30分,2C.5,✅完了,markMessagesAsRead・getUnreadCount実装済み
 Phase 2-C,2C.7,リアルタイム更新テスト,担当者C,30分,2C.6,未着手,2ブラウザで動作確認（担当者Cへ）
 Phase 2-D,2D.1,ダッシュボードAPI実装,担当者A,1時間,1A.6,✅完了,lib/actions/dashboard.ts作成（企業・営業代行・管理者統計実装済み）
-Phase 2-D,2D.2,統計カードコンポーネント,担当者B,30分,1B.4,未着手,StatsCardコンポーネント（担当者Bへ）
-Phase 2-D,2D.3,アクティビティコンポーネント,担当者B,30分,1B.4,未着手,RecentActivityコンポーネント（担当者Bへ）
-Phase 2-D,2D.4,クイックアクション,担当者B,30分,1B.4,未着手,QuickActionsコンポーネント（担当者Bへ）
-Phase 2-D,2D.5,ダッシュボードページ実装,担当者A,30分,2D.2,✅完了,dashboard/page.tsx（Server Component実装完了）
-Phase 2-E,2E.1,プロフィールAPI実装,担当者A,1時間,1A.6,✅完了,lib/actions/profile.ts作成（企業・営業代行CRUD実装済み）
-Phase 2-E,2E.2,企業プロフィールコンポーネント,担当者B,1時間,1B.4,未着手,CompanyProfileコンポーネント（担当者Bへ）
-Phase 2-E,2E.3,営業代行プロフィール,担当者B,1時間,1B.4,未着手,AgencyProfileコンポーネント（担当者Bへ）
-Phase 2-E,2E.4,プロフィールページ実装,担当者C,30分,2E.2,未着手,profile/page.tsx（担当者Cへ）
+Phase 2-D,2D.2,統計カードコンポーネント,担当者C,30分,1B.4,✅完了,dashboard/page.tsxに統合済み
+Phase 2-D,2D.3,アクティビティコンポーネント,担当者C,30分,1B.4,✅完了,dashboard/page.tsxに統合済み
+Phase 2-D,2D.4,クイックアクション,担当者C,30分,1B.4,✅完了,dashboard/page.tsxに統合済み
+Phase 2-D,2D.5,ダッシュボードページ実装,担当者C,30分,2D.2,✅完了,dashboard/page.tsx
+Phase 2-E,2E.1,プロフィールAPI実装,担当者A,1時間,1A.6,✅完了,api/profile作成
+Phase 2-E,2E.2,企業プロフィールコンポーネント,担当者C,1時間,1B.4,✅完了,profile/page.tsxに統合済み
+Phase 2-E,2E.3,営業代行プロフィール,担当者C,1時間,1B.4,✅完了,profile/page.tsxに統合済み
+Phase 2-E,2E.4,プロフィールページ実装,担当者C,30分,2E.2,✅完了,profile/page.tsx
 Phase 2-E,2E.5,フォームバリデーション,担当者A,30分,2E.4,✅完了,lib/validations/schemas.ts作成（Zodスキーマ実装済み）
 Phase 3,3.1,管理者ダッシュボードAPI,担当者A,45分,1A.6,✅完了,lib/actions/admin/stats.ts作成（統計・成長データ・成功率実装済み）
 Phase 3,3.2,ユーザー管理API,担当者A,1時間,1A.6,✅完了,lib/actions/admin/users.ts作成（全ユーザー取得・ロール変更実装済み）
@@ -78,11 +78,27 @@ Phase 4,4.10,最終確認,全員,30分,4.9,未着手,全機能動作確認・バ
 追加タスク,AT.5,API使用例ドキュメント,担当者A,1.5時間,-,✅完了,docs/API_USAGE_EXAMPLES.md作成
 追加タスク,AT.6,環境変数設定ガイド,担当者A,45分,-,✅完了,docs/ENV_SETUP.md作成
 追加タスク,AT.7,エラーハンドリングユーティリティ,担当者A,30分,-,✅完了,lib/utils/error.ts作成
-
-
-追加タスク,AT.3,定数定義作成,担当者A,30分,-,✅完了,lib/constants/index.ts（業種・エリア・ステータス等）
-追加タスク,AT.4,Supabaseセットアップガイド,担当者A,1時間,-,✅完了,SUPABASE_SETUP.md作成
-追加タスク,AT.5,API使用例ドキュメント,担当者A,1.5時間,-,✅完了,docs/API_USAGE_EXAMPLES.md作成
-追加タスク,AT.6,環境変数設定ガイド,担当者A,45分,-,✅完了,docs/ENV_SETUP.md作成
-追加タスク,AT.7,エラーハンドリングユーティリティ,担当者A,30分,-,✅完了,lib/utils/error.ts作成
-
+統合作業,C-1,営業代行検索ページ統合,担当者C,30分,2A.1,✅完了,agencies/page.tsx（Label追加・型エラー修正）
+統合作業,C-2,営業代行詳細ページ統合,担当者C,30分,2A.2,✅完了,agencies/[id]/page.tsx（RequestModal修正・API連携実装）
+Phase 3-A,3A.0,既存DB整合性修正（ID/外部キー/RLS統一）,担当者A,1.5時間,1A.6,未着手,matching_requests.company_id/agency_idの参照先を統一しRLS/集計/APIの前提を揃える
+Phase 3-A,3A.1,新規テーブル追加（job_posts/applications/schedule_requests/appointments/payments）,担当者A,2時間,3A.0,未着手,提案デモ用の最小データモデル（取引=appointmentsでお金の流れを束ねる）
+Phase 3-A,3A.2,RLS/権限制御（新規テーブル分）,担当者A,1.5時間,3A.1,未着手,企業/営業代行は自分のデータのみ、管理者は全件閲覧＋デモ用強制更新
+Phase 3-A,3A.3,案件募集API（job-posts）実装,担当者A,1.5時間,3A.1,未着手,POST/GET/PUT /api/job-posts（作成・一覧・更新/公開/終了）
+Phase 3-A,3A.4,応募API（applications）実装,担当者A,1.5時間,3A.1,未着手,POST/GET/PUT /api/applications（応募・一覧・採用/却下）
+Phase 3-A,3A.5,日程調整API（schedules）実装,担当者A,1時間,3A.1,未着手,POST/GET/PUT /api/schedules（候補提示・確定・会議URL）
+Phase 3-A,3A.6,取引（アポ）API（appointments）実装,担当者A,1.5時間,3A.1,未着手,日程確定時に取引作成・80/20計算・状態遷移（scheduled/paid/done/accepted等）
+Phase 3-A,3A.7,モック決済API（appointments/pay）実装,担当者A,45分,3A.6,未着手,POST /api/appointments/[id]/pay（payment_status=paid）
+Phase 3-A,3A.8,実施報告API（appointments/complete）実装,担当者A,30分,3A.6,未着手,POST /api/appointments/[id]/complete（done）
+Phase 3-A,3A.9,企業承諾API（appointments/accept）実装,担当者A,30分,3A.8,未着手,POST /api/appointments/[id]/accept（accepted）
+Phase 3-A,3A.10,管理者マネー集計API（admin/money）実装,担当者A,45分,3A.6,未着手,GET /api/admin/money（総流通/手数料/支払予定の集計＋一覧）
+Phase 3-A,3A.11,管理者デモ用強制更新API（force-status）実装,担当者A,30分,3A.6,未着手,POST /api/admin/appointments/[id]/force-status（デモで状態を動かす）
+Phase 3-A,3A.12,お金の流れ表示コンポーネント,担当者B,45分,3A.6,未着手,支払総額/鬼カナ取り分/営業代行支払予定（80/20）と状態バッジを共通化
+Phase 3-A,3A.13,管理者マネー一覧UI,担当者B,45分,3A.10,未着手,一覧（企業/営業代行/金額/状態）＋合計カード
+Phase 3-A,3A.14,企業：案件一覧/作成ページ,担当者C,1.5時間,3A.3,未着手,/(dashboard)/job-posts（CRUD＋公開）
+Phase 3-A,3A.15,企業：案件詳細＋応募一覧＋採用,担当者C,1.5時間,3A.4,未着手,/(dashboard)/job-posts/[id]（応募確認・採用/却下）
+Phase 3-A,3A.16,営業代行：案件検索/閲覧ページ,担当者C,1.5時間,3A.3,未着手,/(dashboard)/jobs（公開案件の検索）
+Phase 3-A,3A.17,営業代行：応募フォーム/応募一覧ページ,担当者C,1時間,3A.4,未着手,/(dashboard)/applications（自分の応募一覧・応募導線）
+Phase 3-A,3A.18,日程調整UI（候補→確定→会議URL）,担当者C,1.5時間,3A.5,未着手,メッセージから遷移 or 取引詳細内で完結
+Phase 3-A,3A.19,取引（アポ）一覧ページ（企業/営業代行共通）,担当者C,1.5時間,3A.6,未着手,/(dashboard)/appointments（状態と金額サマリー表示）
+Phase 3-A,3A.20,取引（アポ）詳細ページ＋モック操作,担当者C,1.5時間,3A.12,未着手,/(dashboard)/appointments/[id]（pay/complete/acceptボタン＋お金の流れ）
+Phase 3-A,3A.21,管理者：マネー一覧ページ,担当者C,45分,3A.13,未着手,/(admin)/admin/money/page.tsx（集計表示）

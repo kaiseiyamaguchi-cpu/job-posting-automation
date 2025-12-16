@@ -30,13 +30,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // 自分のagency_profileを取得
+    const { data: agencyProfile } = await supabase
+      .from("agency_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!agencyProfile) {
+      return NextResponse.json(
+        { error: "営業代行プロフィールが見つかりません" },
+        { status: 404 }
+      );
+    }
+
     // クエリパラメータ取得
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = 20;
 
-    // 自分宛の申請を取得
+    // 自分宛の申請を取得（agency_profiles.idで検索）
     let query = supabase
       .from("matching_requests")
       .select(`
@@ -48,7 +62,7 @@ export async function GET(request: NextRequest) {
           area
         )
       `, { count: "exact" })
-      .eq("agency_id", user.id);
+      .eq("agency_id", agencyProfile.id);
 
     if (status) {
       query = query.eq("status", status);

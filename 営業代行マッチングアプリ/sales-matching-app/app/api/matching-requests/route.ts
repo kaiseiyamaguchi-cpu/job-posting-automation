@@ -30,6 +30,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 自分のcompany_profileを取得
+    const { data: companyProfile } = await supabase
+      .from("company_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!companyProfile) {
+      return NextResponse.json(
+        { error: "企業プロフィールが見つかりません" },
+        { status: 404 }
+      );
+    }
+
     // リクエストボディ取得
     const body = await request.json();
     const { agency_id, monthly_budget, request_details, proposal_deadline } = body;
@@ -49,11 +63,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 重複チェック
+    // 重複チェック（company_profiles.idで検索）
     const { data: existing } = await supabase
       .from("matching_requests")
       .select("id")
-      .eq("company_id", user.id)
+      .eq("company_id", companyProfile.id)
       .eq("agency_id", agency_id)
       .eq("status", "pending")
       .single();
@@ -65,11 +79,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 申請作成
+    // 申請作成（company_profiles.idを使用）
     const { data: matchingRequest, error: insertError } = await supabase
       .from("matching_requests")
       .insert({
-        company_id: user.id,
+        company_id: companyProfile.id,
         agency_id,
         monthly_budget,
         request_details,
@@ -132,14 +146,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // クエリパラメータ取得
-    const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get("status");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = 20;
-
     // 企業の場合：自分が作成した申請を取得
     if (profile.role === "company") {
+      // 自分のcompany_profileを取得
+      const { data: companyProfile } = await supabase
+        .from("company_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!companyProfile) {
+        return NextResponse.json({
+          requests: [],
+          total: 0,
+          page: 1,
+          total_pages: 0,
+        });
+      }
+
+      // クエリパラメータ取得
+      const searchParams = request.nextUrl.searchParams;
+      const status = searchParams.get("status");
+      const page = parseInt(searchParams.get("page") || "1");
+      const limit = 20;
+
       let query = supabase
         .from("matching_requests")
         .select(`
@@ -151,7 +181,7 @@ export async function GET(request: NextRequest) {
             areas
           )
         `, { count: "exact" })
-        .eq("company_id", user.id);
+        .eq("company_id", companyProfile.id);
 
       if (status) {
         query = query.eq("status", status);

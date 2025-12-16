@@ -13,6 +13,8 @@ import {
   Users,
   ClipboardList,
   MessagesSquare,
+  BriefcaseBusiness,
+  HandCoins,
 } from "lucide-react";
 import type { UserRole } from "@/types";
 
@@ -46,6 +48,11 @@ export function Sidebar({
           icon: <LayoutDashboard className="h-5 w-5" />,
         },
         {
+          href: "/job-posts",
+          label: "案件募集",
+          icon: <BriefcaseBusiness className="h-5 w-5" />,
+        },
+        {
           href: "/agencies",
           label: "営業代行を探す",
           icon: <Search className="h-5 w-5" />,
@@ -55,6 +62,11 @@ export function Sidebar({
           label: "申請一覧",
           icon: <FileText className="h-5 w-5" />,
           badge: pendingRequestsCount,
+        },
+        {
+          href: "/appointments",
+          label: "アポ取引",
+          icon: <HandCoins className="h-5 w-5" />,
         },
         {
           href: "/messages",
@@ -76,10 +88,25 @@ export function Sidebar({
           icon: <LayoutDashboard className="h-5 w-5" />,
         },
         {
+          href: "/jobs",
+          label: "案件一覧",
+          icon: <BriefcaseBusiness className="h-5 w-5" />,
+        },
+        {
+          href: "/applications",
+          label: "応募一覧",
+          icon: <FileText className="h-5 w-5" />,
+        },
+        {
           href: "/matching-requests",
           label: "申請一覧",
           icon: <FileText className="h-5 w-5" />,
           badge: pendingRequestsCount,
+        },
+        {
+          href: "/appointments",
+          label: "アポ取引",
+          icon: <HandCoins className="h-5 w-5" />,
         },
         {
           href: "/messages",
@@ -99,6 +126,11 @@ export function Sidebar({
           href: "/admin/dashboard",
           label: "ダッシュボード",
           icon: <LayoutDashboard className="h-5 w-5" />,
+        },
+        {
+          href: "/admin/money",
+          label: "マネー一覧",
+          icon: <HandCoins className="h-5 w-5" />,
         },
         {
           href: "/admin/users",

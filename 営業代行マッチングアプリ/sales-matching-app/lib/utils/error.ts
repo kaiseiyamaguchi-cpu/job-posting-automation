@@ -3,7 +3,22 @@ import { UserRole } from '@/types'
 /**
  * Supabaseエラーを統一的に処理する
  */
-export function handleSupabaseError(error: any): { error: string } {
+type SupabaseLikeError = { code?: string; message?: string };
+
+function isSupabaseLikeError(error: unknown): error is SupabaseLikeError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    ('code' in error || 'message' in error)
+  )
+}
+
+export function handleSupabaseError(error: unknown): { error: string } {
+  if (!isSupabaseLikeError(error)) {
+    console.error('Supabase Error:', error)
+    return { error: 'エラーが発生しました。もう一度お試しください。' }
+  }
+
   // PostgreSQLエラーコードの処理
   if (error.code) {
     switch (error.code) {
@@ -75,7 +90,7 @@ export async function handleActionError<T>(
 ): Promise<T | { error: string }> {
   try {
     return await action()
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Action Error:', error)
     
     // カスタムエラーメッセージ
@@ -84,7 +99,7 @@ export async function handleActionError<T>(
     }
     
     // Supabaseエラー
-    if (error.code || error.message) {
+    if (isSupabaseLikeError(error)) {
       return handleSupabaseError(error)
     }
     

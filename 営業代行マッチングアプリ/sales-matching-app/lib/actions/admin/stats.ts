@@ -233,7 +233,7 @@ export async function getTopAgencies(adminUserId: string, limit: number = 10) {
     // 集計
     const agencyCounts: Record<string, { name: string; count: number }> = {}
     
-    requests?.forEach((request: any) => {
+    ;(requests as Array<{ agency_id: string; agency_profile?: { name?: string } | null }> | null | undefined)?.forEach((request) => {
       const agencyId = request.agency_id
       const agencyName = request.agency_profile?.name || '不明'
       

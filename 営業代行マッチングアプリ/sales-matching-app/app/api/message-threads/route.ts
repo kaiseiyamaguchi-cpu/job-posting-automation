@@ -33,17 +33,7 @@ export async function GET(request: NextRequest) {
     // 自分が参加しているスレッドを取得
     let query = supabase
       .from("message_threads")
-      .select(`
-        *,
-        company_profile:company_profiles!message_threads_company_id_fkey(
-          id,
-          company_name
-        ),
-        agency_profile:agency_profiles!message_threads_agency_id_fkey(
-          id,
-          name
-        )
-      `)
+      .select("*")
       .order("last_message_at", { ascending: false, nullsFirst: false });
 
     if (profile.role === "company") {
@@ -55,7 +45,45 @@ export async function GET(request: NextRequest) {
       // query はそのまま
     }
 
-    const { data, error } = await query;
+    const { data: threads, error } = await query;
+
+    if (error) {
+      console.error("スレッド一覧取得エラー:", error);
+      return NextResponse.json(
+        { error: "スレッド一覧の取得に失敗しました" },
+        { status: 500 }
+      );
+    }
+
+    // スレッドごとに関連情報を取得
+    const threadsWithProfiles = await Promise.all(
+      (threads || []).map(async (thread) => {
+        // matching_requestから必要な情報を取得
+        const { data: matchingRequest } = await supabase
+          .from("matching_requests")
+          .select(`
+            *,
+            company_profile:company_profiles!matching_requests_company_id_fkey(
+              id,
+              company_name
+            ),
+            agency_profile:agency_profiles!matching_requests_agency_id_fkey(
+              id,
+              name
+            )
+          `)
+          .eq("id", thread.matching_request_id)
+          .single();
+
+        return {
+          ...thread,
+          company_profile: matchingRequest?.company_profile,
+          agency_profile: matchingRequest?.agency_profile,
+        };
+      })
+    );
+
+    const data = threadsWithProfiles;
 
     if (error) {
       console.error("スレッド一覧取得エラー:", error);

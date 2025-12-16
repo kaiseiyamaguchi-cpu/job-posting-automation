@@ -29,7 +29,7 @@ export async function getAllThreads(
     validateRole(admin.role, ['admin'])
     
     // スレッド一覧を取得
-    let query = supabase
+    const query = supabase
       .from('message_threads')
       .select(`
         *,

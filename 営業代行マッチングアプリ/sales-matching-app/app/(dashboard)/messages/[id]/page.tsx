@@ -25,14 +25,44 @@ export default function MessageDetailPage({
   const [loading, setLoading] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
-  useEffect(() => {
-    // ユーザー情報取得
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data.user?.id || null)
-    })
+  const loadMessages = async (userId: string | null) => {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('thread_id', id)
+      .order('created_at', { ascending: true })
 
-    // メッセージ取得
-    loadMessages()
+    if (data) {
+      setMessages(data)
+      
+      // 既読処理（自分以外のメッセージ）
+      const unreadIds = data
+        .filter(m => !m.is_read && m.sender_id !== userId)
+        .map(m => m.id)
+      
+      if (unreadIds.length > 0 && userId) {
+        await supabase
+          .from('messages')
+          .update({ is_read: true })
+          .in('id', unreadIds)
+      }
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+    
+    ;(async () => {
+      // ユーザー情報取得
+      const { data } = await supabase.auth.getUser()
+      const uid = data.user?.id || null
+      
+      if (cancelled) return
+      setCurrentUserId(uid)
+
+      // メッセージ取得
+      await loadMessages(uid)
+    })()
 
     // Realtime購読
     const channel = supabase
@@ -52,33 +82,10 @@ export default function MessageDetailPage({
       .subscribe()
 
     return () => {
+      cancelled = true
       supabase.removeChannel(channel)
     }
   }, [id])
-
-  const loadMessages = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('thread_id', id)
-      .order('created_at', { ascending: true })
-
-    if (data) {
-      setMessages(data)
-      
-      // 既読処理（自分以外のメッセージ）
-      const unreadIds = data
-        .filter(m => !m.is_read && m.sender_id !== currentUserId)
-        .map(m => m.id)
-      
-      if (unreadIds.length > 0) {
-        await supabase
-          .from('messages')
-          .update({ is_read: true })
-          .in('id', unreadIds)
-      }
-    }
-  }
 
   const handleSend = async () => {
     if (!newMessage.trim() || !currentUserId) return
